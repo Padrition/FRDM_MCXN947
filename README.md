@@ -90,3 +90,150 @@ choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
 choco install ninja gperf python311 git dtc-msys2 wget 7zip
 ```
 
+* ### Install the Zephyr Software Development Kit
+There are two ways how to get Zephyrs SDK: install it with `west` cli util or to download and install it manually. I prefer and will use myself the manual installation, but you can skip it and use `west` later instead.
+
+#### Linux
+cd into preferred directory, then:
+```
+wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.17.0/zephyr-sdk-0.17.0_linux-x86_64.tar.xz
+wget -O - https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.17.0/sha256.sum | shasum --check --ignore-missing
+```
+If you have architecture different from `x86_64` you will need to specify your architecture instead.
+You can change 0.17.0 to another version in the instructions if needed; the [Zephyr SDK Releases](https://github.com/zephyrproject-rtos/sdk-ng/tags) page contains all available SDK releases.
+
+Extract the Zephyr SDK bundle archive:
+```
+tar xvf zephyr-sdk-0.17.0_linux-x86_64.tar.xz
+```
+
+Run the Zephyr SDK setup script:
+```
+cd zephyr-sdk-0.17.0
+./setup.sh
+```
+
+Install [udev](https://en.wikipedia.org/wiki/Udev) rules, which allow you to flash most Zephyr boards as a regular user:
+```
+sudo cp ~/zephyr-sdk-0.17.0/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
+sudo udevadm control --reload
+```
+
+#### macOS
+Download and verify the [Zephyr SDK bundle](https://github.com/zephyrproject-rtos/sdk-ng/releases/tag/v0.17.0):
+
+```
+cd ~
+curl -L -O https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.17.0/zephyr-sdk-0.17.0_macos-x86_64.tar.xz
+curl -L https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.17.0/sha256.sum | shasum --check --ignore-missing
+```
+If your host architecture is 64-bit ARM (Apple Silicon), replace `x86_64` with `aarch64` in order to download the 64-bit ARM macOS SDK.
+
+
+
+Extract the Zephyr SDK bundle archive:
+```
+tar xvf zephyr-sdk-0.17.0_macos-x86_64.tar.xz
+```
+
+Run the Zephyr SDK bundle setup script:
+```
+cd zephyr-sdk-0.17.0
+./setup.sh
+```
+
+#### Windows
+Open a `cmd.exe` terminal window as a **regular user**
+
+Download the [Zephyr SDK bundle](https://github.com/zephyrproject-rtos/sdk-ng/releases/tag/v0.17.0):
+```
+cd %HOMEPATH%
+wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.17.0/zephyr-sdk-0.17.0_windows-x86_64.7z
+```
+
+Extract the Zephyr SDK bundle archive:
+```
+7z x zephyr-sdk-0.17.0_windows-x86_64.7z
+```
+
+Run the Zephyr SDK bundle setup script:
+```
+cd zephyr-sdk-0.17.0
+setup.cmd
+```
+
+* ### Get Zephyr and install Python dependencies
+You will need to install Zephyr's additional python dependencies and get Zephyrs source code
+
+* First install Python `venv`:
+#### Arch Linux
+Python 3.3+ [comes preinstalled](https://wiki.archlinux.org/title/Python/Virtual_environment#Installation) with `venv` module.
+
+#### Fedora
+```
+sudo dnf install python-virtualenv
+```
+
+#### Ubuntu
+```
+sudo apt install python3-venv
+```
+
+#### macOS & Windows
+`venv` should have been installed along with Python.
+
+* Create a new virtual environment:
+#### Linux & macOs
+
+```
+python3 -m venv ~/zephyrproject/.venv
+```
+#### Windows:
+Open a `cmd.exe` terminal window as a *regular user*
+
+```
+cd %HOMEPATH%
+python -m venv zephyrproject\.venv
+```
+
+* Activate the virtual environment:
+
+#### Linux & macOS
+```
+source ~/zephyrproject/.venv/bin/activate
+```
+
+#### Windows
+```
+zephyrproject\.venv\Scripts\activate.bat
+```
+
+* Install `west`:
+
+```
+pip install west
+```
+* Get Zephyr source code:
+cd into your `zephyrproject` directory and run:
+```
+west init
+west update
+```
+This will download the latest Zephyr version.
+
+* Export a Zephyr CMake package. This allows CMake to automatically load boilerplate code required for building Zephyr applications.
+```
+west zephyr-export
+```
+* Zephyr’s scripts/requirements.txt file declares additional Python dependencies. Install them with pip.
+```
+pip install -r ~/zephyrproject/zephyr/scripts/requirements.txt
+```
+
+* ### Install the Zephyr SDK(if you haven't yet)
+
+```
+west sdk install
+```
+
+
