@@ -236,4 +236,52 @@ pip install -r ~/zephyrproject/zephyr/scripts/requirements.txt
 west sdk install
 ```
 
+* ### Installing NXP LinkServer
+You might want to skip this step if you do not work with NXPs boards, but 
+since I use NXPs FRDM-MCXN947 board I need LinkServer utility to flash
+Zephyr on the board.
+
+Here I provide only steps to install LinkServer on **Arch Linux**. \
+For other distributions I recommend to check if package repositories, or consult wiki and forums. \
+Other operating systems might want to use the official installer.
+
+* Get the binary
+
+First go to [LinkServer Download](https://www.nxp.com/design/design-center/software/development-software/mcuxpresso-software-and-tools-/linkserver-for-microcontrollers:LINKERSERVER)
+page and download Linux binary option, which is a `.deb.bin` file
+
+* Create PKGBUILD file 
+
+In the directory with the downloaded binary(I simply moved it to Desktop)
+create a `PKGBUILD` file and paste in the following [AUR script](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=linkserver)
+ maintained and provided by [KafCoppelia](https://github.com/KafCoppelia).
+
+ Save the `PKGBUILD` file.
+
+ * Build the LinkServer
+
+ Use `makepkg` to build the LinkServer:
+ ```
+ makepkg -si
+ ```
+
+ After that the building process will start and LinkServer will be installed to `/opt/linkserver`
+ directory.
+
+ * Add LinkServer to `PATH` variable
+
+ I added:
+ ```
+ export PATH=$PATH:/opt/linkserver
+ ```
+ To the `.bash_profile` file in my Home directory and run:
+ ```
+ source .bash_profile
+ ```
+
+ **NOTE:** VS Code will pickup changes only after system reboot(or so it seamed to me).
+
+ Now you should have working LinkServer
+
+
 
