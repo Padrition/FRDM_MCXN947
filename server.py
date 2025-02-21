@@ -1,6 +1,5 @@
 import socket
 import errno
-import time
 
 CONTENT = b"""\
 HTTP/1.0 200 OK
@@ -25,7 +24,6 @@ def main(micropython_optimize=False):
     print("Listening, connect your browser to http://<this_host>:8080/")
 
     counter = 0
-    time.sleep(5)
     while True:
         print("accepting")
         res = s.accept()
