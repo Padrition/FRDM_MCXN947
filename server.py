@@ -1,12 +1,30 @@
 import socket
 import errno
+from machine import Pin
+
+red = Pin(("gpio0", 10), Pin.OUT)
 
 CONTENT = b"""\
 HTTP/1.0 200 OK
+Connection: close
+Content-Type: text/html
 
-Hello #%d from MicroPython!
+<html>
+<head>
+    <title>FRDM-MCXN947</title>
+    <script>
+        function turnOnRed() {
+            fetch("/red_on").then(response => console.log("Red LED ON"));
+        }
+    </script>
+</head>
+<body style="background-color: #333;color: #ffffff">
+    <h1>FRDM-MCXN947</h1>
+    <p>Current tempreture: %s</p>
+    <button onclick="turnOnRed()">Turn Red LED %s</button>
+</body>
+</html>
 """
-
 
 def main(micropython_optimize=False):
     print("starting")
@@ -25,7 +43,6 @@ def main(micropython_optimize=False):
 
     counter = 0
     while True:
-        print("accepting")
         res = s.accept()
         client_sock = res[0]
         client_addr = res[1]
@@ -40,12 +57,27 @@ def main(micropython_optimize=False):
         print("Request:")
         req = client_stream.readline()
         print(req)
+
+        request_line = req.decode().split()
+        if len(request_line) > 1:
+            path = request_line[1]
+        else:
+            path = "/"
+
         while True:
             h = client_stream.readline()
             if h == b"" or h == b"\r\n":
                 break
             print(h)
-        client_stream.write(CONTENT % counter)
+        
+        if path == "/red_on":
+            red.value(red.value() ^ 1)
+
+            new_value = "ON" if red.value() > 0 else "OFF"
+            client_stream.write(CONTENT % new_value)
+        else:
+            value = "ON" if red.value() > 0 else "OFF"
+            client_stream.write(CONTENT % value)
 
         client_stream.close()
         if not micropython_optimize:
