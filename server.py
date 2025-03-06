@@ -20,7 +20,6 @@ Content-Type: text/html
 </head>
 <body style="background-color: #333;color: #ffffff">
     <h1>FRDM-MCXN947</h1>
-    <p>Current tempreture: %s</p>
     <button onclick="turnOnRed()">Turn Red LED %s</button>
 </body>
 </html>
@@ -41,7 +40,6 @@ def main(micropython_optimize=False):
     s.listen(5)
     print("Listening, connect your browser to http://<this_host>:8080/")
 
-    counter = 0
     while True:
         res = s.accept()
         client_sock = res[0]
@@ -77,12 +75,11 @@ def main(micropython_optimize=False):
             client_stream.write(CONTENT % new_value)
         else:
             value = "ON" if red.value() > 0 else "OFF"
-            client_stream.write(CONTENT % value)
+            client_stream.write(CONTENT % (value))
 
         client_stream.close()
         if not micropython_optimize:
             client_sock.close()
-        counter += 1
         print()
 
 main()
