@@ -2,16 +2,14 @@
 # and build MicroPython with Zephyr's west tool.
 #
 # Networking config
-CONFIG_NET_SOCKETS=y
-CONFIG_NET_SOCKETS_POSIX_NAMES=y
+CONFIG_NETWORKING=y # Enables networking
+CONFIG_NET_SOCKETS=n 
 CONFIG_NET_SOCKETS_POLL_MAX=4
-CONFIG_NETWORKING=y
-CONFIG_NET_IPV4=y
-CONFIG_NET_TCP=y
-CONFIG_NET_LOOPBACK=y
-CONFIG_NET_L2_ETHERNET=y
-CONFIG_ETH_MCUX=n
+CONFIG_NET_IPV4=y # Enable IPv4 support. If this is enabled then the device is able to send and receive IPv4 network packets.
+CONFIG_NET_TCP=y # Enable TCP 
+CONFIG_NET_L2_ETHERNET=y # Add support for Ethernet, enabling selecting relevant hardware drivers.
 
-CONFIG_NET_BUF_FIXED_DATA_SIZE=y
-CONFIG_NET_BUF_DATA_SIZE=2048
+CONFIG_NET_BUF_FIXED_DATA_SIZE=y # This two flags increase the buffer size 
+CONFIG_NET_BUF_DATA_SIZE=2048 # so it's possible to send larger data like html
+
 
