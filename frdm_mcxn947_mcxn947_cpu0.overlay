@@ -1,0 +1,64 @@
+// Overlay file that is placed in boards directory when building source code with Zephyr's west tool
+// This overaly enables red, green and blue leds in pwm mode using ctimer of frdm_mcxn947
+#include <zephyr/dt-bindings/pwm/pwm.h>
+#include <nxp/mcx/MCXN947VDF-pinctrl.h>
+
+/ {
+    aliases {
+        red-pwm-led = &red_pwm_led;
+        green-pwm-led = &gree_pwm_led;
+        blue-pwm-led = &blue_pwm_led;
+    };
+
+    pwmleds {
+        compatible = "pwm-leds";
+        red_pwm_led: pwm_led_0 {
+            pwms = <&ctimer0 0 255 PWM_POLARITY_NORMAL>;
+            label = "red led pwm";
+        };
+
+        gree_pwm_led: pwm_led_1 {
+            pwms = <&ctimer0 3 255 PWM_POLARITY_NORMAL>;
+            label = "green led pwm";
+        };
+
+        blue_pwm_led: pwm_led_3 {
+            pwms = <&ctimer1 0 255 PWM_POLARITY_NORMAL>;
+            label = "green led pwm";
+        };
+    };
+};
+
+&ctimer0 {
+    compatible = "nxp,ctimer-pwm";
+    #pwm-cells = <3>;
+    status = "okay";
+    pinctrl-0 = <&pinmux_ctimer0_pwm_red_green>;
+	pinctrl-names = "default";
+};
+
+&ctimer1 {
+    compatible = "nxp,ctimer-pwm";
+    #pwm-cells = <3>;
+    status = "okay";
+    pinctrl-0 = <&pinmux_ctimer0_pwm_blue>;
+	pinctrl-names = "default";
+};
+
+&pinctrl {
+    pinmux_ctimer0_pwm_red_green: pinmux_ctimer0_pwm_red_green {
+        group0 {
+            pinmux = <CT0_MAT0_PIO0_10>,
+                <CT0_MAT3_PIO0_27>;
+            slew-rate = "fast";
+            drive-strength = "low";
+        };
+    };
+    pinmux_ctimer0_pwm_blue: pinmux_ctimer0_pwm_blue {
+        group0 {
+            pinmux = <CT1_MAT0_PIO1_2>;
+            slew-rate = "fast";
+            drive-strength = "low";
+        };
+    };
+};
