@@ -1,0 +1,22 @@
+\documentclass[twoside, 12pt]{article}
+\usepackage{xdipp}
+\english
+\pismo{Latin Modern}
+\begin{document}
+\titul{MicroPython Utilizing Zephyr Port and NXP FRDM-MCXN947}{Dmitrii Titarenko}{Ing. Jan Kolomazník, Ph.D.}{Brno 2025}
+\podekovani{I would like to express my gratitude to everyone who contributed to completion of this thesis.\\ I would like to thank my thesis supervisor, Ing. Jan Kolomazník, Ph.D. , for his guidance and support. Furthermore, I express my gratitude to Ph.D. Zbynek Fedra for guiding me during the creation of this thesis.\\
+I am also very grateful to all the professors in the Department of Informatics at Mendel University for their teaching, openness, and constant support throughout my study.\\
+A big thank you to family members and friends for their support and encouragement.\\
+Finally, I express gratitude to the people who directly or indirectly contributed to the creation of this work. To those who came before me and on whose shoulders I stand.}
+\prohlasenimuz{Brno ~03.08.2025}
+
+\abstract{Titarenko, D. MicroPython Utilizing Zephyr Port and NXP FRDM-MCXN947. Bachelor thesis. Brno, 2025.}{This thesis explores MicroPython support on Zephyr RTOS using the NXP FRDM-MCXN947 development board. Zephyr RTOS itself provides extended support and easy-to-use APIs to many embedded devices and their peripherals, but the support of MicroPython remains limited and not consistent with MicroPython ports developed for target devices. This work analyzes the current limitations of MicroPython on Zephyr RTOS and selects specific functionality for implementation. The implementation involves initializing Zephyr and MicroPython development environments adjusted to FRDM-MCXN947, conducting functional testing of the development board peripherals with Zephyr and MicroPython environment, and comparing the comparability of native and Zephyr ports of MicroPython.}
+\keywords{MicroPython, thesis, Zephyr RTOS, FRDM-MCXN947}
+\obsah
+\kapitola{Introduction}
+The world of microcontrollers and embedded devices continues to grow, and such devices become more common with every day. Even though they are seldom noticeable we more often might find ourselves surrounded by them. From home appliances, to cars, to factory machines to city-wide networks embedded devices reach wide and deep in our lives.
+
+But with the growing count of embedded devices grows complexity of functions they implement. Hence arises a need for Operating Systems(OSs) to manage sets of complex programs and provide a layer of abstraction to ease development in such constrain but demanding environments.
+
+To cover demand of an Operating System in embedded devices the Zephyr Real Time Operating System (RTOS) was created. Zephyr RTOS is an open-source operating system with build-in security and optimization for resource limited devices. Zephyr kernel supports ARM, Intel x86, ARC, RISC-V, Nios II, Tensilica Xtensa and large number of development boards, among others NXPs FRDM-MCXN947. 
+\end{document}
