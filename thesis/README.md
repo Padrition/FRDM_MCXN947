@@ -1,0 +1,2 @@
+# MicroPython Utilizing Zephyr Port and NXP FRDM-MCXN947
+This thesis was compiled with [*XeLaTex*](https://www.overleaf.com/learn/latex/XeLaTeX) compiler and uses predefined style `xdipp.sty` by doc. Dr. Ing. Jiří Rybička.
