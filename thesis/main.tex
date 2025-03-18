@@ -1,7 +1,16 @@
 \documentclass[twoside, 12pt]{article}
 \usepackage{xdipp}
+\usepackage{listings}
 \english
 \pismo{Latin Modern}
+
+
+\lstdefinestyle{mystyle}{
+    numbers=left,                    
+    numbersep=5pt,
+}
+\lstset{style=mystyle}
+
 \begin{document}
 \titul{MicroPython Utilizing Zephyr Port and NXP FRDM-MCXN947}{Dmitrii Titarenko}{Ing. Jan Kolomazník, Ph.D.}{Brno 2025}
 
@@ -80,6 +89,7 @@ of the state of both platforms and their integration, informing future developer
 \kapitola{Background}
 This chapter introduces the reader to an information about Zephyr RTOS, MicroPython and FRDM-
 MCXN947 board that is needed for understanding this thesis.
+
 \sekce{Zephyr RTOS}
 Zephyr is an Operation System designed for resource-constrained and embedded 
 system from simple sensors to smart industrial embedded solutions. It supports a broad list 
@@ -89,7 +99,41 @@ synchronization, dynamic memory allocation, interrupt service, power management,
 Zephyr project is open-source, distributed under Apache 2.0 license and was created under 
 Linux Foundation organization.\cite{zephyr1}
 
+\podsekce{West}
+West is a part of Zephyr's tool-chain used for building and configuring. West can initiate
+Zephyr workspace from official upstream repository, update or change version of a local
+Zephyr workspace to any version in official repository, build Zephyr application from source,
+flash built application to a board.\cite{zephyr_west}
+
+\podsekce{Kconfig}
+Kconfig is Zephyr's kernel, drivers and subsystems configuration system that allows to configure Zephyr at a build time. Kconfig goal is to enable configuration without introducing changes to source
+code.
+
+The initial board configuration can be found in \textbf{<board>\_defconfig} files. For
+example configuration file for FRDM-MCXN947 is located at \textbf{boards/frdm\_mcxn947/
+frdm\_mcxn947\_mcxn947\_cpu0\_defconfig}. The board configuration for NXPs' FRDM-MCXN947
+is as follows:
+\begin{lstlisting}{caption=FRDM-MCXN947 Kconfig configuration}
+CONFIG_CONSOLE=y
+CONFIG_UART_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_UART_INTERRUPT_DRIVEN=y
+CONFIG_GPIO=y
+CONFIG_PINCTRL=y
+CONFIG_ARM_MPU=y
+CONFIG_HW_STACK_PROTECTION=y
+CONFIG_TRUSTED_EXECUTION_SECURE=y
+\end{lstlisting}
+
+Kconfig values can be set to a \textbf{<board>\_defconfig} files, temporarily with terminal
+graphical interfaces or with a \textbf{prj.conf} file at application level which overrides
+the initial configuration during application build.\cite{zephyr_kconfig}
+
 \begin{literatura}
-\citace{zephyr1}{Zephyr Project -- Intorduction}{Zephyr Project -- Intorduction [onlne] Zephyr Project, 2025 Available from: https://docs.zephyrproject.org/latest/introduction/index.html}
+\citace{zephyr1}{Zephyr Project -- Intorduction, 2024}{Zephyr Project -- Intorduction [onlne], 2024 Available from: https://docs.zephyrproject.org/latest/introduction/index.html}
+
+\citace{zephyr_west}{Zephyr Project -- West (Zephyr’s meta-tool), 2024}{Zephyr Project -- West (Zephyr’s meta-tool) [online], 2024 Alailable from: https://docs.zephyrproject.org/latest/develop/west/index.html}
+
+\citace{zephyr_kconfig}{Zephyr Project -- Configuration System (Kconfig), 2022}{Zephyr Project -- Configuration System (Kconfig) [onlne], 2022 Available from: https://docs.zephyrproject.org/latest/build/kconfig/index.html}
 \end{literatura}
 \end{document}
