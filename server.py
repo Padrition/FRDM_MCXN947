@@ -1,8 +1,10 @@
 import socket
 import errno
-from machine import Pin
+from machine import Pin, PWM
 
-red = Pin(("gpio0", 10), Pin.OUT)
+red_pwm = PWM(("ctimer0", 0), freq=1000, duty_ns=0)
+green_pwm = PWM(("ctimer0", 3), freq=1000, duty_ns=0)
+blue_pwm = PWM(("ctimer1", 0), freq=1000, duty_ns=0)
 
 CONTENT = b"""\
 HTTP/1.0 200 OK
@@ -13,17 +15,35 @@ Content-Type: text/html
 <head>
     <title>FRDM-MCXN947</title>
     <script>
-        function turnOnRed() {
-            fetch("/red_on").then(response => console.log("Red LED ON"));
+        function setColor(event) {
+            let color = event.target.value;
+            fetch(`/set_color?hex=${encodeURIComponent(color)}`)
+                .then(response => console.log(`Color set to ${color}`))
+                .catch(error => console.error("Error setting color:", error));
         }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("colorPicker").addEventListener("input", setColor);
+        });
     </script>
 </head>
-<body style="background-color: #333;color: #ffffff">
+<body style="background-color: #333; color: #ffffff;">
     <h1>FRDM-MCXN947</h1>
-    <button onclick="turnOnRed()">Turn Red LED %s</button>
+    
+    <input type="color" id="colorPicker">
 </body>
 </html>
+
 """
+def set_color(hex_color):
+    r, g, b = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
+    max_duty_cycle = 500_000
+    r = int((r / 255) * max_duty_cycle)
+    g = int((g / 255) * max_duty_cycle)
+    b = int((b / 255) * max_duty_cycle)
+    red_pwm.duty_ns(r)
+    green_pwm.duty_ns(g)
+    blue_pwm.duty_ns(b)
 
 def main(micropython_optimize=False):
     print("starting")
@@ -59,6 +79,7 @@ def main(micropython_optimize=False):
         request_line = req.decode().split()
         if len(request_line) > 1:
             path = request_line[1]
+            print("request line:", request_line)
         else:
             path = "/"
 
@@ -66,16 +87,14 @@ def main(micropython_optimize=False):
             h = client_stream.readline()
             if h == b"" or h == b"\r\n":
                 break
-            print(h)
         
-        if path == "/red_on":
-            red.value(red.value() ^ 1)
+        if path.startswith("/set_color"):
+            hex_value = path.split("?hex=%23")[1]
+            set_color(hex_value)
 
-            new_value = "ON" if red.value() > 0 else "OFF"
-            client_stream.write(CONTENT % new_value)
+            client_stream.write(CONTENT)
         else:
-            value = "ON" if red.value() > 0 else "OFF"
-            client_stream.write(CONTENT % (value))
+            client_stream.write(CONTENT)
 
         client_stream.close()
         if not micropython_optimize:

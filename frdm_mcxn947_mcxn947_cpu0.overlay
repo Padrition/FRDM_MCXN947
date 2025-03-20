@@ -4,6 +4,7 @@
 #include <nxp/mcx/MCXN947VDF-pinctrl.h>
 
 / {
+    //aliases could be configured but pwm module will require a device and a chanel PWM(("ctimerN", M), freq=f,duty_ns=d)
     aliases {
         red-pwm-led = &red_pwm_led;
         green-pwm-led = &gree_pwm_led;
