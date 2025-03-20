@@ -110,7 +110,7 @@ Kconfig is Zephyr's kernel, drivers and subsystems configuration system that all
 code.
 
 The initial board configuration can be found in \textbf{<board>\_defconfig} files. For
-example configuration file for FRDM-MCXN947 is located at \textbf{boards/frdm\_mcxn947/
+example configuration file for FRDM-MCXN947 is located at \textbf{boards/nxp/frdm\_mcxn947/
 frdm\_mcxn947\_mcxn947\_cpu0\_defconfig}. The board configuration for NXPs' FRDM-MCXN947
 is as follows:
 \begin{lstlisting}{caption=FRDM-MCXN947 Kconfig configuration}
@@ -129,11 +129,31 @@ Kconfig values can be set to a \textbf{<board>\_defconfig} files, temporarily wi
 graphical interfaces or with a \textbf{prj.conf} file at application level which overrides
 the initial configuration during application build.\cite{zephyr_kconfig}
 
+\podsekce{Devicetree}
+Devicetree is a data structure for describing hardware. It's a community driven standard
+that is heavily used in Zephyr project. In Zephyr devicetrees are usually build inherently 
+meaning that for example FRDM-MCXN947 has a devicetree configuration \textbf{board/nxp/frdm\_mcxn947/frdm\_mcxn947\_mcxn947\_cpu0.dts}
+which mainly enables peripheral devices, but includes FRDM-MCXN947 specific configuration 
+from \textbf{frdm\_mcxn947.dtsi} (include file), which in turn includes 
+\textbf{frdm\_mcxn947-pinctrl.dtsi} file that mostly defines pinmux groups. Additionally the 
+\textbf{frdm\_mcxn947\_mcxn947\_cpu0.dts} includes \textbf{nxp\_mcxn94x.dtsi} file that 
+defines memory ranges for SRAM, FLEXSPI and peripherals and includes 
+\textbf{nxp\_mcxn94x\_common.dtsi} include file where most of devices including CPU, GPIO, 
+CTIMER and others are defined and assigned memory ranges.\cite{devicetree_spec}
+
+Same as Kconfig Devicetrees can be overwritten or have some specific devices configured 
+differently with \textbf{overlay} files, which as well needs to be placed in build directory, 
+from there \textbf{west tool} will use it to edit the Devicetree configuration.
+
 \begin{literatura}
 \citace{zephyr1}{Zephyr Project -- Intorduction, 2024}{Zephyr Project -- Intorduction [onlne], 2024 Available from: https://docs.zephyrproject.org/latest/introduction/index.html}
 
 \citace{zephyr_west}{Zephyr Project -- West (Zephyr’s meta-tool), 2024}{Zephyr Project -- West (Zephyr’s meta-tool) [online], 2024 Alailable from: https://docs.zephyrproject.org/latest/develop/west/index.html}
 
 \citace{zephyr_kconfig}{Zephyr Project -- Configuration System (Kconfig), 2022}{Zephyr Project -- Configuration System (Kconfig) [onlne], 2022 Available from: https://docs.zephyrproject.org/latest/build/kconfig/index.html}
+
+\citace{mcx_manual}{NXP, MCX Nx4x Reference Manual, 2025}{NXP, MCX Nx4x Reference Manual, 2025 MCXNX4XRM}
+
+\citace{devicetree_spec}{devicetree.org, Devicetree Specification Release v0.4, 2023}{devicetree.org, Devicetree Specification Release v0.4, 2023}
 \end{literatura}
 \end{document}
