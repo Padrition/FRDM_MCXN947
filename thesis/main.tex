@@ -145,6 +145,44 @@ Same as Kconfig Devicetrees can be overwritten or have some specific devices con
 differently with \textbf{overlay} files, which as well needs to be placed in build directory, 
 from there \textbf{west tool} will use it to edit the Devicetree configuration.
 
+\sekce{MicroPython}
+MicroPython is an open-source project founded by Damien George. MicroPython is an implementation of the Python programming 
+language that 
+is optimized to be run on embedded and resource constraint devices. It implements 
+the entire Python 3.4 syntax with some selected features from the later versions such as
+\textbf{async/await} from Python 3.5 , additionally on par with Python it uses garbage 
+collection system for memory management. 
+
+
+There are many supported devices and architectures that MicroPython can run on.
+MicroPyton has additional support to be run on
+operating systems Zephyr RTOS and on OSes from UNIX family, as well as experimental Windows 
+port.
+
+MicroPython remains in beta-stage, hence it is a subject to possible API and code-base changes in the future.\cite{mpy_book}
+
+\sekce{FRDM-MCXN947}
+The FRDM-MCXN947 is a low-cost development board designed by NXP semiconductors. FRDM-MCXN947 integrates Arm
+Cortex-M33 microcontroller, a neural processing unit, P3T1755DP I3C temperature sensor, 
+TJA1057GTK/3Z CAN PHY, Ethernet PHY, SDHC circuit, RGB LED, touch pad, high-speed USB, MCU-Link debuger,
+push buttons and has an option to be extended with external devices.
+\cite{mcxn947_manual}
+
+\podsekce{Signal Multiplexing}
+FRDM-MXCN947 enables use of several functions for different pins by utilizing Signal 
+Multiplexing. For example pin \textbf{P0\_10} which is an red RGB pin can use \textbf{GPIO} 
+functionality directly, \textbf{FLEXCOMM} by utilizing \textbf{FC0\_P6} FLEXCOMM device,
+\textbf{CTIMER} by utilizing \textbf{CT0\_MAT0} CTIMER device, and \textbf{FLEXIO} 
+functionality by utilizing \textbf{FLEXIO0\_D2} device.
+
+Only one function can be used at a time on a pin and only one pin can be assigned to a 
+peripheral device. \cite{mcx_manual} 
+
+\podsekce{LinkServer}
+LinkServer is an NXP command-line utility that provides  target flashing capabilities and 
+firmware updates. \cite{link_server}
+
+
 \begin{literatura}
 \citace{zephyr1}{Zephyr Project -- Intorduction, 2024}{Zephyr Project -- Intorduction [onlne], 2024 Available from: https://docs.zephyrproject.org/latest/introduction/index.html}
 
@@ -152,8 +190,15 @@ from there \textbf{west tool} will use it to edit the Devicetree configuration.
 
 \citace{zephyr_kconfig}{Zephyr Project -- Configuration System (Kconfig), 2022}{Zephyr Project -- Configuration System (Kconfig) [onlne], 2022 Available from: https://docs.zephyrproject.org/latest/build/kconfig/index.html}
 
-\citace{mcx_manual}{NXP, MCX Nx4x Reference Manual, 2025}{NXP, MCX Nx4x Reference Manual, 2025 MCXNX4XRM}
+\citace{mcx_manual}{NXP semiconductors, MCX Nx4x Reference Manual, 2025}{NXP semiconductors, MCX Nx4x Reference Manual, 2025 MCXNX4XRM}
 
 \citace{devicetree_spec}{devicetree.org, Devicetree Specification Release v0.4, 2023}{devicetree.org, Devicetree Specification Release v0.4, 2023}
+
+\citace{mpy_book}{Nicholas H. Tollervey, 2017}{\autor{Nicholas H. Tollervey} \nazev{Programming with MicroPython: embedded programming with microcontrollers and Python}. O'Reilly Media, Inc., 2017. ISBN 978-1-491-97273-1}
+
+\citace{mcxn947_manual}{NXP semiconductors, UM12018 FRDM-MCXN947 Board User Manual, 2024}{NXP semiconductors, UM12018 FRDM-MCXN947 Board User Manual, 2024}
+
+\citace{link_server}{NXP semiconductors -- LinkServer for Microcontrollers, 2025}{NXP semiconductors, LinkServer for Microcontrollers [online], 2025 \\ Available from : https://www.nxp.com/design/design-center/software/development-software/mcuxpresso-software-and-tools-/linkserver-for-microcontrollers:LINKERSERVER}
+
 \end{literatura}
 \end{document}
