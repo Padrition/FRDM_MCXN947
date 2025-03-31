@@ -16,7 +16,7 @@
 
 \podekovani{I would like to express my gratitude to everyone who contributed to completion of 
 this thesis.\\ I would like to thank my thesis supervisor, Ing. Jan Kolomazník, Ph.D. , for 
-his guidance and support. Furthermore, I express my gratitude to Ph.D. Zbynek Fedra for 
+his guidance and support. Furthermore, I express my gratitude to Zbynek Fedra Ph.D. for 
 guiding me during the creation of this thesis.\\
 I am also very grateful to all the professors in the Department of Informatics at Mendel 
 University for their teaching, openness, and constant support throughout my study.\\
@@ -38,6 +38,9 @@ the comparability of native and Zephyr ports of MicroPython.}
 \keywords{MicroPython, thesis, Zephyr RTOS, FRDM-MCXN947}
 
 \obsah
+
+\listoffigures
+
 \kapitola{Introduction}
 The world of microcontrollers and embedded devices continues to grow, and such devices become 
 more common with every day. Even though they are seldom noticeable we more often might find 
@@ -86,18 +89,28 @@ compatibility challenges of both platforms and propose potential solutions for e
 MicroPython port to Zephyr RTOS. The finding of this thesis will contribute to understanding 
 of the state of both platforms and their integration, informing future developers and increasing usability of MicroPython and Zephyr.
 
+\sekce{Goal of this thesis}
+Goal of the thesis is to establish development environment and workflow for developing 
+applications for embedded devices with the MicroPython Zephyr port. This work could be used
+in future to ease start of application development and as a reference.
+
 \kapitola{Background}
 This chapter introduces the reader to an information about Zephyr RTOS, MicroPython and FRDM-
 MCXN947 board that is needed for understanding this thesis.
 
 \sekce{Zephyr RTOS}
 Zephyr is an Operation System designed for resource-constrained and embedded 
-system from simple sensors to smart industrial embedded solutions. It supports a broad list 
+system from simple sensors to smart industrial embedded solutions with emphasis on safety. It 
+supports a broad list 
 of embedded devices, development boards and peripherals. Zephyr offers extensive number of 
 features and services including multi-threading, inter-thread data passing, inter-thread 
-synchronization, dynamic memory allocation, interrupt service, power management, networking.
+synchronization, dynamic memory allocation, interrupt service, power management, networking, file system.
 Zephyr project is open-source, distributed under Apache 2.0 license and was created under 
 Linux Foundation organization.\cite{zephyr1}
+
+\obrazek
+\vlozobr{images/security-zephyr-system-architecture}{0.5}
+\endobr{Zephyr System Architecture \obrzdroj{\cite{zephyr_architecture}}}
 
 \podsekce{West}
 West is a part of Zephyr's tool-chain used for building and configuring. West can initiate
@@ -151,7 +164,10 @@ language that
 is optimized to be run on embedded and resource constraint devices. It implements 
 the entire Python 3.4 syntax with some selected features from the later versions such as
 \textbf{async/await} from Python 3.5 , additionally on par with Python it uses garbage 
-collection system for memory management. 
+collection system for memory management. MicroPython final build include a compiler that 
+compiles MicroPython code to bytecode and an runtime interpreter of the compiled bytecode.
+Programs could be written directly to the MicroPython REPL(Read–eval–print loop) or be loaded
+onto MicroPython host device with use of serial connection and utility programs like \textbf{ampy}.
 
 
 There are many supported devices and architectures that MicroPython can run on.
@@ -162,11 +178,16 @@ port.
 MicroPython remains in beta-stage, hence it is a subject to possible API and code-base changes in the future.\cite{mpy_book}
 
 \sekce{FRDM-MCXN947}
-The FRDM-MCXN947 is a low-cost development board designed by NXP semiconductors. FRDM-MCXN947 integrates Arm
+The FRDM-MCXN947 is a low-cost development board designed by NXP semiconductors. FRDM-MCXN947 
+integrates Dual Arm
 Cortex-M33 microcontroller, a neural processing unit, P3T1755DP I3C temperature sensor, 
 TJA1057GTK/3Z CAN PHY, Ethernet PHY, SDHC circuit, RGB LED, touch pad, high-speed USB, MCU-Link debuger,
 push buttons and has an option to be extended with external devices.
 \cite{mcxn947_manual}
+
+\obrazek
+\vlozobr{images/frdm-diagram}{0.35}
+\endobr{FRDM-MCXN947 Block diagram \obrzdroj{\cite{mcxn947_web}}}
 
 \podsekce{Signal Multiplexing}
 FRDM-MXCN947 enables use of several functions for different pins by utilizing Signal 
@@ -180,15 +201,15 @@ peripheral device. \cite{mcx_manual}
 
 \podsekce{LinkServer}
 LinkServer is an NXP command-line utility that provides  target flashing capabilities and 
-firmware updates. \cite{link_server}
+firmware updates for FRDM-MCXN947. \cite{link_server}
 
 
 \begin{literatura}
-\citace{zephyr1}{Zephyr Project -- Intorduction, 2024}{Zephyr Project -- Intorduction [onlne], 2024 Available from: https://docs.zephyrproject.org/latest/introduction/index.html}
+\citace{zephyr1}{Zephyr Project, Intorduction, 2024}{Zephyr Project, Intorduction [onlne], 2024 Available from: https://docs.zephyrproject.org/latest/introduction/index.html}
 
-\citace{zephyr_west}{Zephyr Project -- West (Zephyr’s meta-tool), 2024}{Zephyr Project -- West (Zephyr’s meta-tool) [online], 2024 Alailable from: https://docs.zephyrproject.org/latest/develop/west/index.html}
+\citace{zephyr_west}{Zephyr Project, West (Zephyr’s meta-tool), 2024}{Zephyr Project, West (Zephyr’s meta-tool) [online], 2024 Available from: https://docs.zephyrproject.org/latest/develop/west/index.html}
 
-\citace{zephyr_kconfig}{Zephyr Project -- Configuration System (Kconfig), 2022}{Zephyr Project -- Configuration System (Kconfig) [onlne], 2022 Available from: https://docs.zephyrproject.org/latest/build/kconfig/index.html}
+\citace{zephyr_kconfig}{Zephyr Project, Configuration System (Kconfig), 2022}{Zephyr Project, Configuration System (Kconfig) [onlne], 2022 Available from: https://docs.zephyrproject.org/latest/build/kconfig/index.html}
 
 \citace{mcx_manual}{NXP semiconductors, MCX Nx4x Reference Manual, 2025}{NXP semiconductors, MCX Nx4x Reference Manual, 2025 MCXNX4XRM}
 
@@ -200,5 +221,8 @@ firmware updates. \cite{link_server}
 
 \citace{link_server}{NXP semiconductors -- LinkServer for Microcontrollers, 2025}{NXP semiconductors, LinkServer for Microcontrollers [online], 2025 \\ Available from : https://www.nxp.com/design/design-center/software/development-software/mcuxpresso-software-and-tools-/linkserver-for-microcontrollers:LINKERSERVER}
 
+\citace{mcxn947_web}{NXP semiconductors, FRDM Development Board for MCX N94/N54 MCUs , 2025}{NXP semiconductors, FRDM Development Board for MCX N94/N54 MCUs [online], 2025 Available from: https://www.nxp.com/design/design-center/development-boards-and-designs/FRDM-MCXN947}
+
+\citace{zephyr_architecture}{Zephyr Project, Zephyr Security Overview, 2024}{Zephyr Project, Zephyr Security Overview [onlne], 2024 Available from: https://docs.zephyrproject.org/latest/security/security-overview.html}
 \end{literatura}
 \end{document}
