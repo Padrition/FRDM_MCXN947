@@ -119,7 +119,9 @@ Zephyr workspace to any version in official repository, build Zephyr application
 flash built application to a board.\cite{zephyr_west}
 
 \podsekce{Kconfig}
-Kconfig is Zephyr's kernel, drivers and subsystems configuration system that allows to configure Zephyr at a build time. Kconfig goal is to enable configuration without introducing changes to source
+Kconfig is Zephyr's kernel, peripheral drivers and subsystems configuration system that allow 
+to configure Zephyr at a build time. Kconfig goal is to enable configuration without 
+introducing changes to the source
 code.
 
 The initial board configuration can be found in \textbf{<board>\_defconfig} files. For
@@ -143,7 +145,7 @@ graphical interfaces or with a \textbf{prj.conf} file at application level which
 the initial configuration during application build.\cite{zephyr_kconfig}
 
 \podsekce{Devicetree}
-Devicetree is a data structure for describing hardware. It's a community driven standard
+Devicetree is a data structure to describe hardware. It is a community driven standard
 that is heavily used in Zephyr project. In Zephyr devicetrees are usually build inherently 
 meaning that for example FRDM-MCXN947 has a devicetree configuration \textbf{board/nxp/frdm\_mcxn947/frdm\_mcxn947\_mcxn947\_cpu0.dts}
 which mainly enables peripheral devices, but includes FRDM-MCXN947 specific configuration 
@@ -170,9 +172,18 @@ Programs could be written directly to the MicroPython REPL(Read–eval–print l
 onto MicroPython host device with use of serial connection and utility programs like \textbf{ampy}.
 
 
-There are many supported devices and architectures that MicroPython can run on.
-MicroPyton has additional support to be run on
-operating systems Zephyr RTOS and on OSes from UNIX family, as well as experimental Windows 
+MicroPython's core development is focused on implementing and maintaining core features
+of the MicroPython like Python language features, libraries, memory management and 
+MicroPython interpreter. The responsibility for adapting and porting MicroPython to different
+platforms lies on the community around it. Every MicroPython port introduces required 
+adaptations and addresses hardware features and limitations of its platform. Consequently,
+MicroPython support is not linear on all platforms, because some might lack the necessary
+configuration for enabling a part of functionality or even lack reimplementation of a number of core libraries. Additionally, the slow pace of adding to source code features for various platforms 
+created by the community means that
+even fully functional and tested ports or features might wait for months before being reviewed.
+Despite all of this, there are already many supported devices and architectures that 
+MicroPython can run on. MicroPyton has additional support to be run on
+operating system Zephyr RTOS and on OSes from UNIX family, as well as experimental Windows 
 port.
 
 MicroPython remains in beta-stage, hence it is a subject to possible API and code-base changes in the future.\cite{mpy_book}
@@ -202,6 +213,20 @@ peripheral device. \cite{mcx_manual}
 \podsekce{LinkServer}
 LinkServer is an NXP command-line utility that provides  target flashing capabilities and 
 firmware updates for FRDM-MCXN947. \cite{link_server}
+
+\sekce{MicroPython port to Zephyr}
+For a long time the MicroPythons' Zephyr port have been using an older versions of Zephyr and
+MicroPython itself. It used MicroPython 1.19.1 and Zephyr 3.1.0 versions which both came out 
+in period between May and June 2022 until September 2024. In September 2022 began work by 
+Maureen Helm  to introduce a CI pipeline into MicroPython repository to ease porting 
+MicroPython to latest Zephyr release. From this work emerged last MicroPython Zephyr port 
+version based on MicroPython 1.24.0 and Zephyr 3.7.0.
+
+And though MicroPython Zephyr port
+already supports the MicroPython modules like socket, time, math, machine and other are 
+implemented and usable in the final MicroPython build they may lack support of some 
+sub-modules like machine's PWM sub-module or functionality of modules and sub-modules like
+not yet implemented features of machine's I2C sub-module that do not have ability to set clock and data lines. 
 
 
 \begin{literatura}
