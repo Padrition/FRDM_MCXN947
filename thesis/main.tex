@@ -215,7 +215,16 @@ LinkServer is an NXP command-line utility that provides  target flashing capabil
 firmware updates for FRDM-MCXN947. \cite{link_server}
 
 \sekce{MicroPython port to Zephyr}
-For a long time the MicroPythons' Zephyr port have been using an older versions of Zephyr and
+While Zephyr RTOS provides a feature-packed and expandable development and system to be used
+in embedded world standard development in C can be time consuming. MicroPython's Zephyr port
+brings advantages of both MicroPython and Zephyr to single environment, allowing to write
+hight-level Python like code and rapidly prototype and debug, while also leveraging hardware 
+agnostic Zephyr APIs and wide support of
+different embedded devices and their peripherals.
+
+But despite growth in support between Zephyr and MicroPython there are still features that 
+lack in the port and issues with coupling of both technologies. For a long time the 
+MicroPythons' Zephyr port have been using an older versions of Zephyr and
 MicroPython itself. It used MicroPython 1.19.1 and Zephyr 3.1.0 versions which both came out 
 in period between May and June 2022 until September 2024. In September 2022 began work by 
 Maureen Helm  to introduce a CI pipeline into MicroPython repository to ease porting 
@@ -226,7 +235,14 @@ And though MicroPython Zephyr port
 already supports the MicroPython modules like socket, time, math, machine and other are 
 implemented and usable in the final MicroPython build they may lack support of some 
 sub-modules like machine's PWM sub-module or functionality of modules and sub-modules like
-not yet implemented features of machine's I2C sub-module that do not have ability to set clock and data lines. 
+not yet implemented features of machine's I2C sub-module that do not have ability to set clock and data lines.
+
+A MicroPython's Zephyr port is built in a same way any Zephyr application is built. A 
+\textbf{west} utility is used and MicroPython port to Zephyr source code as a build target.
+The final build could be configured and some features or peripherals could be activated or 
+deactivated with \textbf{Kconfig} and a final devicetree be overwritten with devicetree 
+\textbf{overlays}. Then the result binary file is fleshed to a target board with \textbf{west}
+utility.
 
 
 \begin{literatura}
