@@ -172,19 +172,19 @@ defines memory ranges for SRAM, FLEXSPI and peripherals and includes
 CTIMER and others are defined and assigned memory ranges.\cite{devicetree_spec}
 
 Same as Kconfig Devicetrees can be overwritten or have some specific devices configured 
-differently with \textbf{overlay} files, which as well needs to be placed in build directory, 
-from there \textbf{west tool} will use it to edit the Devicetree configuration.
+differently with \textit{overlay} files, which as well needs to be placed in build directory, 
+from there \textit{west} tool will use it to edit the Devicetree configuration.
 
 \sekce{MicroPython}
 MicroPython is an open-source project founded by Damien George. MicroPython is an implementation of the Python programming 
 language that 
 is optimized to be run on embedded and resource constraint devices. It implements 
 the entire Python 3.4 syntax with some selected features from the later versions such as
-\textbf{async/await} from Python 3.5 , additionally on par with Python it uses garbage 
+\textit{async/await} from Python 3.5 , additionally on par with Python it uses garbage 
 collection system for memory management. MicroPython final build include a compiler that 
 compiles MicroPython code to bytecode and an runtime interpreter of the compiled bytecode.
 Programs could be written directly to the MicroPython REPL(Read–eval–print loop) or be loaded
-onto MicroPython host device with use of serial connection and utility programs like \textbf{ampy}.
+onto MicroPython host device with use of serial connection and utility programs like \textit{ampy}.
 
 
 MicroPython's core development is focused on implementing and maintaining core features
@@ -227,7 +227,7 @@ peripheral device. \cite{mcx_manual}
 
 \podsekce{LinkServer}
 LinkServer is an NXP command-line utility that provides  target flashing capabilities and 
-firmware updates for FRDM-MCXN947. This is typically used as a backend for flashing FRDM-MCXN947 in \textbf{west} utility. \cite{link_server}
+firmware updates for FRDM-MCXN947. This is typically used as a backend for flashing FRDM-MCXN947 in \textit{west} utility. \cite{link_server}
 
 \sekce{MicroPython port to Zephyr}
 While Zephyr RTOS provides a feature-packed and expandable development and system to be used
@@ -253,28 +253,43 @@ sub-modules like machine's PWM sub-module or functionality of modules and sub-mo
 not yet implemented features of machine's I2C sub-module that do not have ability to set clock and data lines.
 
 A MicroPython's Zephyr port is built in a same way any Zephyr application is built. A 
-\textbf{west} utility is used and MicroPython port to Zephyr source code as a build target.
+\textit{west} utility is used and MicroPython port to Zephyr source code as a build target.
 The final build could be configured and some features or peripherals could be activated or 
-deactivated with \textbf{Kconfig} and a final devicetree be overwritten with devicetree 
-\textbf{overlays}. Then the result binary file is fleshed to a target board with \textbf{west}
+deactivated with \textit{Kconfig} and a final devicetree be overwritten with devicetree 
+\textit{overlays}. Then the result binary file is fleshed to a target board with \textit{west}
 utility.
 
 \sekce{Summary}
 For utilizing MciroPython Zephyr port on FRDM-MCXN947 board it is needed to build MicroPython 
 port as a Zephyr application, and then flash this application onto the development board, 
-both operations are made with use of Zephyr's \textbf{west} utility. Program flashing is made using \textbf{LinkServer}.
+both operations are made with use of Zephyr's \textit{west} utility. Program flashing is made using \textit{LinkServer}.
 
-Pre-build configuration is possible using \textbf{Kconfig}, for setting what peripherals and sub-system are to be enabled or disable, and \textbf{Devicetree}, for creating or updating a structured description of the underling hardware.
+Pre-build configuration is possible using \textit{Kconfig}, for setting what peripherals and sub-system are to be enabled or disable, and \textit{Devicetree}, for creating or updating a structured description of the underling hardware.
 
 FRDM-MCXN947 is a programmable and extendable development board with many devices, 
 peripherals and systems available.
 
 \kapitola{Methodology}
+This chapter introduces the reader to the set of tools used in this thesis and outlines a 
+methodological approach.
 
+\sekce{Zephyr development environment setup and testing}
+This section will detail the process of setting up a development environment for working with
+Zephyr RTOS. The setup will be broken into several steps to provide clear and easy-to-follow 
+instructions to the reader.
+
+Firstly, the prerequisites and dependencies would be introduced along with the installation 
+process. A note of warning of potential issues or of an alternatives for some dependencies 
+would be provided. The reader will be briefed on purpose of the key dependencies. After the 
+necessary preparation the Zephyr source code will be obtained and two methods for obtaining it
+will be presented and discussed. Then the \textit{west} tool will be described in detail and
+it's abilities for managing the project will be discussed. Next, the installation and use of 
+the \textit{LinkServer} utility and its alternatives will be discussed. Finally, the 
+development setup will be verified with a functional test and test prerequisites discussed.
 
 
 \begin{literatura}
-\citace{zephyr1}{Zephyr Project, Intorduction, 2024}{Zephyr Project, Intorduction [onlne], 2024 Available from: https://docs.zephyrproject.org/latest/introduction/index.html}
+\citace{zephyr1}{Zephyr Project, Introduction, 2024}{Zephyr Project, Introduction [onlne], 2024 Available from: https://docs.zephyrproject.org/latest/introduction/index.html}
 
 \citace{zephyr_west}{Zephyr Project, West (Zephyr’s meta-tool), 2024}{Zephyr Project, West (Zephyr’s meta-tool) [online], 2024 Available from: https://docs.zephyrproject.org/latest/develop/west/index.html}
 
