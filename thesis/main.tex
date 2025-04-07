@@ -6,8 +6,11 @@
 
 
 \lstdefinestyle{mystyle}{
-    numbers=left,                    
+    numbers=left,
     numbersep=5pt,
+    showspaces=false,
+    tabsize=2,
+    frame=single,
 }
 \lstset{style=mystyle}
 
@@ -25,16 +28,28 @@ Finally, I express gratitude to the people who directly or indirectly contribute
 creation of this work. To those who came before me and on whose shoulders I stand.}
 \prohlasenimuz{Brno ~03.08.2025}
 
+\abstrakt{Titarenko, D. MicroPython Utilizing Zephyr Port and NXP FRDM-MCXN947.
+Bachelor thesis. Brno, 2025.}{Práce zkoumá podporu MicroPython na Zephyr RTOS s využitím 
+vývojové desky FRDM-MCXN947 od NXP. Samo o sobe Zephyr RTOS poskytuje širokou podporu a 
+snadno použitelné API pro mnoho embedded zařízení a jejích periferii, ale podpora MicroPython 
+je stále limitovaná a nekonzistentní s MicroPython porty vyvíjený pro jíná zařízení. Práce 
+analyzuje součastné limity MicroPython na Zephyr RTOS a vybírá funkčnost pro implementaci. 
+Implementace zahrnuje inicializaci vývojovýho prostředí pro Zephyr a MicroPython, které bude 
+upravené pro FRDM-MCXN947, provádění funkčního testování periferii vývojové desky v vývojovém 
+prostředí pro Zephyr a MicroPython a porovnáním kompatibility nativného poru a Zephyr portu 
+MicroPython.}
+\klslova{MicroPython, závěrečná práce, Zephyr RTOS, FRDM-MCXN947}
+
 \abstract{Titarenko, D. MicroPython Utilizing Zephyr Port and NXP FRDM-MCXN947. Bachelor 
 thesis. Brno, 2025.}{This thesis explores MicroPython support on Zephyr RTOS using the NXP 
 FRDM-MCXN947 development board. Zephyr RTOS itself provides extended support and easy-to-use 
 APIs to many embedded devices and their peripherals, but the support of MicroPython remains 
-limited and not consistent with MicroPython ports developed for target devices. This work 
+limited and not consistent with MicroPython ports developed for other devices. This work 
 analyzes the current limitations of MicroPython on Zephyr RTOS and selects specific 
 functionality for implementation. The implementation involves initializing Zephyr and 
 MicroPython development environments adjusted to FRDM-MCXN947, conducting functional testing 
 of the development board peripherals with Zephyr and MicroPython environment, and comparing 
-the comparability of native and Zephyr ports of MicroPython.}
+the compatibility of native and Zephyr ports of MicroPython.}
 \keywords{MicroPython, thesis, Zephyr RTOS, FRDM-MCXN947}
 
 \obsah
@@ -128,7 +143,7 @@ The initial board configuration can be found in \textbf{<board>\_defconfig} file
 example configuration file for FRDM-MCXN947 is located at \textbf{boards/nxp/frdm\_mcxn947/
 frdm\_mcxn947\_mcxn947\_cpu0\_defconfig}. The board configuration for NXPs' FRDM-MCXN947
 is as follows:
-\begin{lstlisting}{caption=FRDM-MCXN947 Kconfig configuration}
+\begin{lstlisting}[caption=FRDM-MCXN947 Kconfig configuration]
 CONFIG_CONSOLE=y
 CONFIG_UART_CONSOLE=y
 CONFIG_SERIAL=y
@@ -212,7 +227,7 @@ peripheral device. \cite{mcx_manual}
 
 \podsekce{LinkServer}
 LinkServer is an NXP command-line utility that provides  target flashing capabilities and 
-firmware updates for FRDM-MCXN947. \cite{link_server}
+firmware updates for FRDM-MCXN947. This is typically used as a backend for flashing FRDM-MCXN947 in \textbf{west} utility. \cite{link_server}
 
 \sekce{MicroPython port to Zephyr}
 While Zephyr RTOS provides a feature-packed and expandable development and system to be used
@@ -243,6 +258,19 @@ The final build could be configured and some features or peripherals could be ac
 deactivated with \textbf{Kconfig} and a final devicetree be overwritten with devicetree 
 \textbf{overlays}. Then the result binary file is fleshed to a target board with \textbf{west}
 utility.
+
+\sekce{Summary}
+For utilizing MciroPython Zephyr port on FRDM-MCXN947 board it is needed to build MicroPython 
+port as a Zephyr application, and then flash this application onto the development board, 
+both operations are made with use of Zephyr's \textbf{west} utility. Program flashing is made using \textbf{LinkServer}.
+
+Pre-build configuration is possible using \textbf{Kconfig}, for setting what peripherals and sub-system are to be enabled or disable, and \textbf{Devicetree}, for creating or updating a structured description of the underling hardware.
+
+FRDM-MCXN947 is a programmable and extendable development board with many devices, 
+peripherals and systems available.
+
+\kapitola{Methodology}
+
 
 
 \begin{literatura}
