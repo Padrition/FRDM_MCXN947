@@ -273,7 +273,7 @@ peripherals and systems available.
 This chapter introduces the reader to the set of tools used in this thesis and outlines a 
 methodological approach.
 
-\sekce{Zephyr development environment setup and testing}
+\sekce{Zephyr development environment setup}
 This section will detail the process of setting up a development environment for working with
 Zephyr RTOS. The setup will be broken into several steps to provide clear and easy-to-follow 
 instructions to the reader.
@@ -285,8 +285,46 @@ necessary preparation the Zephyr source code will be obtained and two methods fo
 will be presented and discussed. Then the \textit{west} tool will be described in detail and
 it's abilities for managing the project will be discussed. Next, the installation and use of 
 the \textit{LinkServer} utility and its alternatives will be discussed. Finally, the 
-development setup will be verified with a functional test and test prerequisites discussed.
+development setup will be verified with a functional test on a FRDM-MCXN947 board and test 
+prerequisites discussed.
 
+\sekce{Use of MicroPython on FRDM-MCXN947}
+This section will describe how to use MicroPython on FRDM-MCXN947 board. The 
+\textit{LinkServer} utility will be used and aspects of it will be discussed.
+The section will begin with an explanation on what are the possibilities to obtain 
+MicroPython binary. Particularly, the current process of that takes place to obtain 
+MicroPython binary working on FRDM-MCXN947 will be shown. After obtaining the binary it will 
+be shown how to load it to the board and later how to interact with the board via tools like 
+\textit{ampy} or \textit{rshell}. The section will conclude with a functional test of 
+MicroPython possibilities.  
+
+\sekce{MicroPython port to Zephyr RTOS}
+The section will present an approach on how to setup and start using MicroPython's Zephyr 
+port.
+
+It will start with setting up a development environment for MicroPython. After this process 
+of building a MicroPython Zephyr port will be shown with ways of how to influence the final 
+build. The section will conclude with an illustrative program.
+
+\sekce{Comparing native and Zephyr ports}
+This section will compare two MicroPython builds the NXP native MicroPython implementation 
+and Zephyr port focusing on availability and functionality of the built-in modules. The 
+goal of this  section is to identify what modules are supported by each implementation and to 
+highlight the missing features.
+
+\sekce{Extending Zephyr Port functionality}
+This section will try to extend the MicroPython's Zephyr port with modules. 
+
+First, the process of how modules are getting added will be explained. Then how a new module
+could be created, and how to add this module to the MicroPython build. Next MicroPython 
+Zephyr port will be extended by modules to make it on par with NXP port. Finally, a community 
+extension will be added to bring a PWM support and the board build will be configured with 
+\textit{Kconfig} and \textit{Devicetree} for PWM to work.
+
+\sekce{Creating an HTTP server of FRDM-MCXN947 with MicroPython's Zephyr port}
+In this section the process and steps to create a web server for controlling the
+FRDM-MCXN947 board will be discussed. The necessary configuration will be explained along
+with the code for the server.
 
 \begin{literatura}
 \citace{zephyr1}{Zephyr Project, Introduction, 2024}{Zephyr Project, Introduction [onlne], 2024 Available from: https://docs.zephyrproject.org/latest/introduction/index.html}
