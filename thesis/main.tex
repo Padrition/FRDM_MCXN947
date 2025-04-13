@@ -6,8 +6,8 @@
 
 
 \lstdefinestyle{mystyle}{
-    numbers=left,
-    numbersep=5pt,
+    % numbers=left,
+    % numbersep=5pt,
     showspaces=false,
     tabsize=2,
     frame=single,
@@ -270,8 +270,13 @@ FRDM-MCXN947 is a programmable and extendable development board with many device
 peripherals and systems available.
 
 \kapitola{Methodology}
+\sekce{Introduction}
 This chapter introduces the reader to the set of tools used in this thesis and outlines a 
-methodological approach.
+methodological approach. First Zephyr and MicroPython development environments will be setup 
+and tested, following with their integration for building MicroPython's Zephyr port. Next the
+MicroPython's Zephyr port will be extended with use of configuration and additional code to 
+bring it  closer to the level of native port support. Finally, the thesis will conclude by 
+building a web server that will run on FRDM-MCXN947  utilizing MicroPython's Zephyr port.
 
 \sekce{Zephyr development environment setup}
 This section will detail the process of setting up a development environment for working with
@@ -279,9 +284,8 @@ Zephyr RTOS. The setup will be broken into several steps to provide clear and ea
 instructions to the reader.
 
 Firstly, the prerequisites and dependencies would be introduced along with the installation 
-process. A note of warning of potential issues or of an alternatives for some dependencies 
-would be provided. The reader will be briefed on purpose of the key dependencies. After the 
-necessary preparation the Zephyr source code will be obtained and two methods for obtaining it
+process. The reader will be briefed on purpose of the key dependencies. After the 
+necessary preparation the Zephyr Software Development Kit (SDK) and source code will be obtained. For the Zephyr SDK two methods for obtaining it
 will be presented and discussed. Then the \textit{west} tool will be described in detail and
 it's abilities for managing the project will be discussed. Next, the installation and use of 
 the \textit{LinkServer} utility and its alternatives will be discussed. Finally, the 
@@ -289,13 +293,13 @@ development setup will be verified with a functional test on a FRDM-MCXN947 boar
 prerequisites discussed.
 
 \sekce{Use of MicroPython on FRDM-MCXN947}
-This section will describe how to use MicroPython on FRDM-MCXN947 board. The 
+This section will describe how to use MicroPython on FRDM-MCXN947 board.The 
 \textit{LinkServer} utility will be used and aspects of it will be discussed.
+
 The section will begin with an explanation on what are the possibilities to obtain 
 MicroPython binary. Particularly, the current process of that takes place to obtain 
 MicroPython binary working on FRDM-MCXN947 will be shown. After obtaining the binary it will 
-be shown how to load it to the board and later how to interact with the board via tools like 
-\textit{ampy} or \textit{rshell}. The section will conclude with a functional test of 
+be shown how to load it to the board. The section will conclude with a functional test of 
 MicroPython possibilities.  
 
 \sekce{MicroPython port to Zephyr RTOS}
@@ -323,28 +327,157 @@ extension will be added to bring a PWM support and the board build will be confi
 
 \sekce{Creating an HTTP server of FRDM-MCXN947 with MicroPython's Zephyr port}
 In this section the process and steps to create a web server for controlling the
-FRDM-MCXN947 board will be discussed. The necessary configuration will be explained along
-with the code for the server.
+FRDM-MCXN947 board will be discussed. Zephyr's strong networking stack will be utilized for 
+local network IP configuration as well as data transition and reception. The necessary 
+configuration will be explained along with the code for the server.
+
+\kapitola{Implementation}
+\sekce{Introduction}
+This chapter describes configuration and development of the MicoPython's Zephyr port itself 
+as of the web server built utilizing this port. The main outcome of this thesis is a MicroPython-based web server running on a FRDM-MCXN947 board that host Zephyr RTOS.
+
+The first part of this thesis is focusing on describing the setup and a necessary 
+configuration of the development environment for building and running MicroPython on Zephyr 
+RTOS. Next the MicroPython port for Zephyr is compared against a MicroPython port for FRDM-
+MCXN947  developed by NXP. The MicroPython's Zephyr port then is synchronized with the port 
+by NXP in terms of capabilities and modules supported.
+
+This chapter concludes with implementation of a web server that demonstraites the capabilities of the extended MicroPython's Zephyr port.
+
+\sekce{Zephyr development environment setup}
+\podsekce{Installing Zephyr and it's dependencies}
+Before starting to setting up the development environment for Zephyr the needed dependencies 
+need to be obtained. Those include :
+\begin{itemize}
+    \item \textit{git} -- Zephyr's \textit{west} tool uses \textit{git} as a backend
+    \item \textit{cmake} -- Zephyr use \textit{cmake} as it's build system for configuration 
+    and build files generation.
+    \item \textit{ninja} -- is a performance based build system that is used by CMake for building a project.
+    \item \textit{make} -- some tools expecting or fall back to Make.
+    \item \textit{gperf} -- GNU utility for fast hash generation used in Zephyr for lookup. 
+    \item \textit{ccache} -- an utility that speeds up compilation time by caching previous compilation.  
+    \item \textit{dtc} -- compiles \textit{Devicetree} files.
+    \item \textit{xz} -- is a set of data compression utilities used for decompressing Zephyr SDK.
+    \item \textit{wget} -- used to download Zephyr SDK.
+    \item \textit{python-pip} -- used to install Zephyr's \textit{west} tool.
+    \item \textit{python-setuptools} -- Python build helper package.
+    \item \textit{python-wheel} -- Python build helper package.
+    \item \textit{dfu-util} -- implementation of Direct Firmware Update and is used in Zephyr to flash firmware and programs to a board. 
+\end{itemize}
+
+The next step after obtaining all the dependencies is to install the Zephyr SDK. There are
+two options of installing Zephyr SDK: using the \textit{west} tool (which is shown at page \pageref{west_sdk_install}) or 
+performing a manual installation. To install the SDK in desired installation directory 
+execute:
+\begin{lstlisting}[caption=Installing Zephyr SDK: obtaining SDK, breaklines=true]
+wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.17.0/zephyr-sdk-0.17.0_linux-x86_64.tar.xz
+wget -O - https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.17.0/sha256.sum | shasum --check --ignore-missing
+\end{lstlisting}
+
+These commands download the archived Zephyr SDK and verify it's integrity using SHA-256 
+checksum. The download \textit{URL} could be altered to download the SDK for other operating 
+systems like \textit{Windows, Mac Os} by changing the system name to \textit{windows}(windows 
+SDK version uses 7z archive format and does not have ARM variant) or \textit{macos} and for 
+ARM processors by changing architecture name to \textit{aarch64}.
+
+The content of the downloaded archive is the extracted file and the \textit{ setup} script is 
+run. Additionally for Linux systems it is recommend to install \textit{udev} rules, which 
+will allow to flash boards with Zephyr as a regular user:
+\begin{lstlisting}[caption=Installing udev rules,breaklines=true]
+sudo cp ~/zephyr-sdk-0.17.0/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
+sudo udevadm control --reload
+\end{lstlisting}
+
+For building and working with Zephyr applications it is required to obtain Zephyr source code 
+and configure a Python virtual environment. First, Python virtual environment \textit{venv} 
+needs to be installed. In the preferred working directory then the new \textit{venv} 
+environment is initialized and activated:
+\begin{lstlisting}[caption=Creating and activating Python venv environment]
+python3 -m venv ~/zephyrproject/.venv
+source ~/zephyrproject/.venv/bin/activate
+\end{lstlisting}
+
+Zephyr uses it's tool \textit{west} for to manage it's source code, dependencies and to build 
+and flash applications. \textit{West} could be installed to \textit{venv} environment using:
+\begin{lstlisting}[caption=Installing Zephyr's West tool]
+pip install west
+\end{lstlisting}
+
+With \textit{west} installed it could be used to obtain Zephyr's source code:
+\begin{lstlisting}[caption=Obtaining Zephyr's source code]
+west init
+west update
+\end{lstlisting}
+
+This command registers the current Zephyr installation as a CMake config package in the CMake user package registry.\cite{zephyr_cmake_commands}
+\begin{lstlisting}
+west zephyr-export
+\end{lstlisting}
+
+At this point Zephyr's SDK could be installed if it was not already using \textit{west}: 
+\begin{lstlisting}[caption=Installing Zephyr SDK using West]
+west sdk install
+\end{lstlisting}\label{west_sdk_install}
+
+\podsekce{Installing LinkServer}
+To flash application to FRDM-MCXN947 board Zephyr uses the NXP's \textit{LinkServer} utility.
+The installation files for different Operating systems are available on the web page of the \textit{LinkServer} utility.\cite{link_server}
+
+Also J-Link could be used as an alternative though it needs additional hardware peripherals.  \cite{zephyr_mcxn947}
+
+\podsekce{Configuring serial port}
+This step is not required for the development and correct work with Zephyr, but it's useful 
+to have a capability to see board logs and to interact with the board through a command line 
+interface from the development environment. For Linux and Mac OS \textit{minicom}\cite{jayantilal_hc05} and 
+\textit{screen}\cite{gnu_screen} open-source utilities could be used, for Windows \textit{PuTTY} serial port 
+capabilities could be utilized. 
+
+For establishing serial communication with a FRDM-MCXN947 board the following configuration parameters should be used\cite{mcxn947_getting_started}:
+\begin{lstlisting}[caption=Serial port configuration]
+Baud rate: 115200
+Data size: 8
+Parity: None
+Stop bit: 1
+\end{lstlisting}
 
 \begin{literatura}
-\citace{zephyr1}{Zephyr Project, Introduction, 2024}{Zephyr Project, Introduction [onlne], 2024 Available from: https://docs.zephyrproject.org/latest/introduction/index.html}
+
+% ZEPHYR sources
+\citace{zephyr1}{Zephyr Project, Introduction, 2024}{Zephyr Project, Introduction [online], 2024 Available from: https://docs.zephyrproject.org/latest/introduction/index.html}
 
 \citace{zephyr_west}{Zephyr Project, West (Zephyr’s meta-tool), 2024}{Zephyr Project, West (Zephyr’s meta-tool) [online], 2024 Available from: https://docs.zephyrproject.org/latest/develop/west/index.html}
 
-\citace{zephyr_kconfig}{Zephyr Project, Configuration System (Kconfig), 2022}{Zephyr Project, Configuration System (Kconfig) [onlne], 2022 Available from: https://docs.zephyrproject.org/latest/build/kconfig/index.html}
+\citace{zephyr_kconfig}{Zephyr Project, Configuration System (Kconfig), 2022}{Zephyr Project, Configuration System (Kconfig) [online], 2022 Available from: https://docs.zephyrproject.org/latest/build/kconfig/index.html}
 
-\citace{mcx_manual}{NXP semiconductors, MCX Nx4x Reference Manual, 2025}{NXP semiconductors, MCX Nx4x Reference Manual, 2025 MCXNX4XRM}
+\citace{zephyr_mcxn947}{Zephyr Project, FRDM-MCXN947, 2025}{Zephyr Project, FRDM-MCXN947 [online], 2025 https://docs.zephyrproject.org/latest/boards/nxp/frdm\_mcxn947/doc/index.html}
+
+\citace{zephyr_architecture}{Zephyr Project, Zephyr Security Overview, 2024}{Zephyr Project, Zephyr Security Overview [online], 2024 Available from: https://docs.zephyrproject.org/latest/security/security-overview.html}
+
+\citace{zephyr_cmake_commands}{Zephyr Project, Additional Zephyr extension commands, 2025}{Zephyr Project, Additional Zephyr extension commands [online], 2025 Available from: https://docs.zephyrproject.org/latest/develop/west/zephyr-cmds.html}
+
+% Zephyr related sources
 
 \citace{devicetree_spec}{devicetree.org, Devicetree Specification Release v0.4, 2023}{devicetree.org, Devicetree Specification Release v0.4, 2023}
 
-\citace{mpy_book}{Nicholas H. Tollervey, 2017}{\autor{Nicholas H. Tollervey} \nazev{Programming with MicroPython: embedded programming with microcontrollers and Python}. O'Reilly Media, Inc., 2017. ISBN 978-1-491-97273-1}
+% FRDM-MCXN947 sources
+
+\citace{mcx_manual}{NXP semiconductors, MCX Nx4x Reference Manual, 2025}{NXP semiconductors, MCX Nx4x Reference Manual, 2025 MCXNX4XRM}
 
 \citace{mcxn947_manual}{NXP semiconductors, UM12018 FRDM-MCXN947 Board User Manual, 2024}{NXP semiconductors, UM12018 FRDM-MCXN947 Board User Manual, 2024}
 
-\citace{link_server}{NXP semiconductors -- LinkServer for Microcontrollers, 2025}{NXP semiconductors, LinkServer for Microcontrollers [online], 2025 \\ Available from : https://www.nxp.com/design/design-center/software/development-software/mcuxpresso-software-and-tools-/linkserver-for-microcontrollers:LINKERSERVER}
+\citace{mcxn947_getting_started}{NXP semiconductors, Getting Started with FRDM-MCXN947,2024}{NXP semiconductors, Getting Started with FRDM-MCXN947 [online] ,2024 Available from: https://www.nxp.com/document/guide/getting-started-with-frdm-mcxn947:GS-FRDM-MCXNXX?section=build-and-run}
 
 \citace{mcxn947_web}{NXP semiconductors, FRDM Development Board for MCX N94/N54 MCUs , 2025}{NXP semiconductors, FRDM Development Board for MCX N94/N54 MCUs [online], 2025 Available from: https://www.nxp.com/design/design-center/development-boards-and-designs/FRDM-MCXN947}
 
-\citace{zephyr_architecture}{Zephyr Project, Zephyr Security Overview, 2024}{Zephyr Project, Zephyr Security Overview [onlne], 2024 Available from: https://docs.zephyrproject.org/latest/security/security-overview.html}
+% Other NXP sources 
+
+\citace{link_server}{NXP semiconductors -- LinkServer for Microcontrollers, 2025}{NXP semiconductors, LinkServer for Microcontrollers [online], 2025 \\ Available from: https://www.nxp.com/design/design-center/software/development-software/mcuxpresso-software-and-tools-/linkserver-for-microcontrollers:LINKERSERVER}
+
+% MicroPython sources
+\citace{mpy_book}{Nicholas H. Tollervey, 2017}{\autor{Nicholas H. Tollervey} \nazev{Programming with MicroPython: embedded programming with microcontrollers and Python}. O'Reilly Media, Inc., 2017. ISBN 978-1-491-97273-1}
+
+% Other sources
+\citace{jayantilal_hc05}{Jayantilal, S. H., Interfacing of AT command based HC-05 serial Bluetooth module with minicom in Linux, 2014}{Jayantilal, S. H., Interfacing of AT command based HC-05 serial Bluetooth module with minicom in Linux, International Journal for Scientific Research and Development, 2014; 2(3): 329–332}
+\citace{gnu_screen}{Free Software Foundation, GNU Screen, 2016}{Free Software Foundation, GNU Screen [online], 2016 Available from: https://www.gnu.org/software/screen/}
 \end{literatura}
 \end{document}
