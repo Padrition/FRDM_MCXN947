@@ -56,6 +56,8 @@ the compatibility of native and Zephyr ports of MicroPython.}
 
 \listoffigures
 
+\lstlistoflistings
+
 \kapitola{Introduction}
 The world of microcontrollers and embedded devices continues to grow, and such devices become 
 more common with every day. Even though they are seldom noticeable we more often might find 
@@ -440,6 +442,34 @@ Parity: None
 Stop bit: 1
 \end{lstlisting}
 
+\podsekce{Building and flashing a program to FRDM-MCXN947}
+In this subsection to carry out testing of the development environment and demonstrate the
+flashing and building process of Zephyr applications, a Zephyr-provided sample program will 
+be built.
+
+To build the sample application \textit{west} utility is used:
+\begin{lstlisting}[caption=Building the Blinky Program, breaklines=true]
+west build -p always -b frdm_mcxn947/mcxn947/cpu0 samples/basic/blinky
+\end{lstlisting}
+
+where arguments \textit{-p always} makes a pristine build \cite{zehpyr_west_building}, 
+\textit{-b frdm\_mcxn947/mcxn947/cpu0} specifies the target(\textit{cpu0} is specified 
+because only it can be targeted standalone, second core is enabled after configuring 
+\cite{zephyr_mcxn947}) and \textit{samples/basic/blinky} specifies program to build.
+
+The built binary then can be flashed to the board using \textit{west} and \textit{LinkServer}. For this, board need to be connected with USB-C via \textit{J-17} port.
+Flashing is run with:
+\begin{lstlisting}[caption=Flashin a program]
+west flash
+\end{lstlisting}
+After flashing, the red led will start to blink with a one-second period.
+
+With the successful build and flashing of the program to the FRDM-MCXN947 board, it is 
+verified that the Zephyr development environment functions correctly and now prepared for 
+further development.
+
+\sekce{Use of MicroPython on FRDM-MCXN947}
+
 \begin{literatura}
 
 % ZEPHYR sources
@@ -454,6 +484,8 @@ Stop bit: 1
 \citace{zephyr_architecture}{Zephyr Project, Zephyr Security Overview, 2024}{Zephyr Project, Zephyr Security Overview [online], 2024 Available from: https://docs.zephyrproject.org/latest/security/security-overview.html}
 
 \citace{zephyr_cmake_commands}{Zephyr Project, Additional Zephyr extension commands, 2025}{Zephyr Project, Additional Zephyr extension commands [online], 2025 Available from: https://docs.zephyrproject.org/latest/develop/west/zephyr-cmds.html}
+
+\citace{zehpyr_west_building}{Zephyr Project, Building, Flashing and Debugging, 2024}{Zephyr Project, Building, Flashing and Debugging, [online], 2024 Available from: https://docs.zephyrproject.org/latest/develop/west/build-flash-debug.html}
 
 % Zephyr related sources
 
