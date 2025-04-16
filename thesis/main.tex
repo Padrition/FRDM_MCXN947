@@ -469,6 +469,92 @@ verified that the Zephyr development environment functions correctly and now pre
 further development.
 
 \sekce{Use of MicroPython on FRDM-MCXN947}
+\podsekce{Installing MicroPython on FRDM-MCXN947}
+In this section the process of installing MicroPython interpreter on FRDM-MCXN947 board is 
+described.
+    
+    There are many boards that have direct MicroPython ports or support through their
+architecture\cite{mpy_boards}, but FRDM-MCXN947 is not among them due to the port made by NXP 
+developers not yet being reviewed and merged into the main MicroPython repository. Instead 
+the MicroPyhton binary must be obtained through NXP's article\cite{mcxn947_mpy_bin} or 
+compiled from source code of the development branch from NXP with port to FRDM-MCXN947.
+For sake of time saving the MicroPython binary version used in this thesis was downloaded 
+from the said NXP article.
+
+Before proceeding with flashing the binary to the target board the \textit{LinkServer} 
+utility must be installed on the host computer and the board itself is connected to the host 
+computer with USB-C via \textit{J-17} port.
+
+To ensure the board has no prior binaries install the following command is used:
+\begin{lstlisting}[caption=LinkServer erase]
+LinkServer flash MCXN947:FRDM-MCXN947 erase
+\end{lstlisting}
+
+To flash the binary to the FRDM-MCXN947 this command is used:
+\begin{lstlisting}[caption=LnkServer flasg,breaklines=true]
+LinkServer flash MCXN947:FRDM-MCXN947 load firmware.bin  --addr 0
+\end{lstlisting}
+After the flash process has ended, serial port connection could be made to the board, which will reveal REPL environment for code execution.
+
+\obrazek
+\vlozobr{images/nxp_mpy_flash_minicom}{0.55}
+\endobr{MicroPython REPL environment on the FRDM-MCXN947 board, access via the \textit{minicom} utility}
+
+\podsekce{Writing and flashing MicroPython programs}
+There are two common approaches to writing programs for MicroPython: either by entering the 
+code directly to REPL, which allows fast prototyping and modules or periphery testing, or to 
+load the python code onto the board using utilities like \textit{rshell} or \textit{ampy}. 
+
+Both \textit{ampy} and \textit{rshell} utilities are installed via Python's \textit{pip} 
+package manager and to the Python virtual environment.
+
+To test MicroPython capability and program loading to the board with MicroPython the 
+following code for reading temperature data from the \textit{P3T1755} temperature sensor on 
+the FRDM-MCXN947 board:
+\begin{lstlisting}[caption=Read tempreture data from P3T1755 sensor using MicroPython, breaklines=true]
+import machine, time
+
+P3T_ADDR = 72
+
+i2c = machine.I2C(5, scl=machine.Pin('P1_17'), sda=machine.Pin('P1_16'))
+
+class P3T1755:
+    def __init__(self, i2c, addr):
+        self.addr = addr
+        self.i2c = i2c
+
+        self.i2c.writeto(self.addr, b'\x00')
+
+    def read(self):
+        temp_raw = i2c.readfrom(self.addr, 2)
+        temp_converted = ((temp_raw[0] << 4) | (temp_raw[1] >> 4)) * 0.0625
+        return temp_converted
+
+ts = P3T1755(i2c, P3T_ADDR)
+
+while(True):
+    print("Temperature: {:.2f} Deg.C".format(ts.read()))
+    time.sleep_ms(100)
+\end{lstlisting}
+
+To load and run this code on the board with MicroPython the code must be saved to a file and 
+loaded with:
+\begin{lstlisting}[caption=Loading a program to FRDM-MCXN947 board with MicroPython using ampy utility, breaklines=true]
+ampy --port /dev/ttyACM0 run you_micropython_code.py
+\end{lstlisting}
+
+The output from the board will be shown in the console the program was loaded from, to only 
+load the program the \textit{--no-output} parameter could be passed to the \textit{ampy} 
+utility.
+
+\obrazek
+\vlozobr{images/mpy_tempreture_test}{0.80}
+\endobr{Output of the FRDM-MXN947 board after loading temperature reading program}
+
+It is now verified that the MicroPython port by NXP works correctly on the FRDM-MCXN947 board.
+
+
+\sekce{MicroPython port to Zephyr RTOS}
 
 \begin{literatura}
 
@@ -488,7 +574,6 @@ further development.
 \citace{zehpyr_west_building}{Zephyr Project, Building, Flashing and Debugging, 2024}{Zephyr Project, Building, Flashing and Debugging, [online], 2024 Available from: https://docs.zephyrproject.org/latest/develop/west/build-flash-debug.html}
 
 % Zephyr related sources
-
 \citace{devicetree_spec}{devicetree.org, Devicetree Specification Release v0.4, 2023}{devicetree.org, Devicetree Specification Release v0.4, 2023}
 
 % FRDM-MCXN947 sources
@@ -501,12 +586,15 @@ further development.
 
 \citace{mcxn947_web}{NXP semiconductors, FRDM Development Board for MCX N94/N54 MCUs , 2025}{NXP semiconductors, FRDM Development Board for MCX N94/N54 MCUs [online], 2025 Available from: https://www.nxp.com/design/design-center/development-boards-and-designs/FRDM-MCXN947}
 
+\citace{mcxn947_mpy_bin}{NXP semiconductors, Quick start guide for MicroPython on FRDM-MCXN947 board , 2024}{NXP semiconductors, Quick start guide for MicroPython on FRDM-MCXN947 board [online], 2024 Available from: https://community.nxp.com/t5/NXP-Tech-Blog/Quick-start-guide-for-MicroPython-on-FRDM-MCXN947-board/ba-p/1799949}
 % Other NXP sources 
 
 \citace{link_server}{NXP semiconductors -- LinkServer for Microcontrollers, 2025}{NXP semiconductors, LinkServer for Microcontrollers [online], 2025 \\ Available from: https://www.nxp.com/design/design-center/software/development-software/mcuxpresso-software-and-tools-/linkserver-for-microcontrollers:LINKERSERVER}
 
 % MicroPython sources
 \citace{mpy_book}{Nicholas H. Tollervey, 2017}{\autor{Nicholas H. Tollervey} \nazev{Programming with MicroPython: embedded programming with microcontrollers and Python}. O'Reilly Media, Inc., 2017. ISBN 978-1-491-97273-1}
+
+\citace{mpy_boards}{MicroPython, MicroPython downloads, 2025}{MicroPython, MicroPython downloads [online], 2025 Available from: https://micropython.org/download/}
 
 % Other sources
 \citace{jayantilal_hc05}{Jayantilal, S. H., Interfacing of AT command based HC-05 serial Bluetooth module with minicom in Linux, 2014}{Jayantilal, S. H., Interfacing of AT command based HC-05 serial Bluetooth module with minicom in Linux, International Journal for Scientific Research and Development, 2014; 2(3): 329–332}
