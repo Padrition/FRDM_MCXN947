@@ -555,6 +555,73 @@ It is now verified that the MicroPython port by NXP works correctly on the FRDM-
 
 
 \sekce{MicroPython port to Zephyr RTOS}
+\podsekce{Setup of the MicroPython Zephyr port}
+This section details the process of building and running MicroPython's Zephyr port on FRDM-
+MCXN947 development board. To begin firs the MicroPython source code should be obtained, 
+either from \textit{git} repository or as a archived file from the project's web.
+
+Before proceeding with the build creating a Python virtual environment in the Zephyr 
+installation directory if not done yet.
+
+The build of the MicroPython's Zephyr port is done from Zephyr development environment using \textit{west} utility:
+\begin{lstlisting}[caption=Building MicroPython's Zephyr port, breaklines=true]
+west build -p always -b frdm_mcxn947/mcxn947/cpu0 ~/micropython/ports/zephyr
+\end{lstlisting}
+Where the target program is a path to \textit{/ports/zephyr} directory in MicroPython's source
+code.
+
+During the initial build the following error may occure:
+\begin{lstlisting}[caption=Error building MicroPython's Zephyr port,breaklines=true]
+/micropython/ports/zephyr/modzephyr.c:52:5: error: too few arguments to function 'thread_analyzer_print'
+   52 |     thread_analyzer_print();
+      |     ^~~~~~~~~~~~~~~~~~~~~
+\end{lstlisting}
+
+The issue is due to an API mismatch introduced in newer versions of Zephyr. To solve this, the
+Zephyr version should be lowered to 3.7.0. This could be done using \textit{git} and it's \textit{checkout} command to switch to \textit{v3.7-branch} branch.
+
+After switching to an older branch the building process finishes without further errors and 
+the resulting binary could be flashed to the FRDM-MCXN947 board using \textit{west} utility.
+
+After flash with the help of serial port program a similar to NXP's MicroPython port REPL environment is seen with additional information on hosting OS.
+
+\obrazek
+\vlozobr{images/mpy_zephyr_build_minicom}{0.7}
+\endobr{MicroPython's Zpehyr port REPL environment on the FRDM-MCXN947 board, access via the \textit{minicom} utility}
+
+The same applies to program loading as with NXP's MicroPython port. Programs can be either 
+written directly into REPL environment or uploaded using tools such as \textit{ampy}.
+
+To verify the functionality of the built MicroPython's Zephyr port and compare it to NXP's 
+port a simple program was developed, which utilizes \textit{GPIO} pins of green and red on 
+board LEDs to switch between low and high voltage.
+
+\begin{lstlisting}[caption=Led program for MicroPython's Zephyr port, breaklines=true]
+import time
+from machine import Pin
+
+red = Pin(("gpio0", 10), Pin.OUT)
+red.value(1)
+green = Pin(("gpio0", 27), Pin.OUT)
+green.value(1)
+
+while True:
+    green.value(0)
+    time.sleep(1.5)
+    red.value(0)
+    time.sleep(1.5)
+    green.value(1)
+    time.sleep(1.5)
+    red.value(1)
+\end{lstlisting}
+
+After loading the program to the FRDM-MCXN947 board the red and green LEDs will be periodically set to high and low voltage.
+
+Note how the program needs to refer to a pin in the MicroPython's Zephyr port as a tuple 
+while in NXP's port it uses a string name of the pin. MicroPython's Zephyr port use 
+definition of the board and periphery from \textit{Devicetree} files where \textit{gpio0} is 
+a peripheral which exposes various pins, such as pins 10 and 27, each configured for specific 
+functions.
 
 \begin{literatura}
 
