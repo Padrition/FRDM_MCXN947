@@ -1,6 +1,8 @@
 \documentclass[twoside, 12pt]{article}
 \usepackage{xdipp}
 \usepackage{listings}
+\usepackage{caption}
+\usepackage{float}
 \english
 \pismo{Latin Modern}
 
@@ -623,6 +625,173 @@ definition of the board and periphery from \textit{Devicetree} files where \text
 a peripheral which exposes various pins, such as pins 10 and 27, each configured for specific 
 functions.
 
+\sekce{Comparing native and Zephyr ports}
+\podsekce{Modules available on NXP's port}
+This section compares module support of NXP's and Zephyr MicroPython ports. The analysis 
+includes a list of modules available for both ports. The analysis was made by importing 
+modules into the REPL environment and passing them to the \textit{help()} function.
+
+NXP port provides a variety of modules specific for the hardware of the FRDM-MCXN947 board 
+and common MicroPython modules. To get a list of supported modules on NXP port 
+\textit{help('modules')} command could be used in the REPL environment which returns the 
+following list:
+
+\newpage
+
+\begin{lstlisting}[caption=NXP's port modules, breaklines=true]
+__main__                asyncio/stream
+_asyncio                binascii      
+_boot                   builtins      
+_onewire                cmath         
+array                   collections   
+asyncio/__init__        deflate       
+asyncio/core            dht           
+asyncio/event           ds18x20       
+asyncio/funcs           errno         
+asyncio/lock            framebuf      
+gc                      os
+hashlib                 platform
+heapq                   random
+io                      re
+json                    select
+machine                 struct
+math                    sys
+mcx                     time
+micropython             uasyncio
+onewire                 uctypes
+\end{lstlisting}
+
+Modules could also be passed as parameters to the \textit{help()} function to reveal what 
+functions does the module have and what constants it defines.
+
+\podsekce{Modules available on Zephyr port}
+In contrast to the NXP's port, running \textit{help('modules')} does not yield the supported 
+modules. Instead to get the list of supported modules it is needed to either try to import 
+modules and pass them to the \textit{help()} function or to read the source-code of the 
+MicroPython's Zephyr port, specifically the \textit{CMakeLists.txt CMake} file where some of 
+the imported modules are listed :
+\begin{lstlisting}[caption=Zephyr port CMake list, breaklines=true]
+set(MICROPY_SOURCE_PORT
+    main.c
+    help.c
+    machine_i2c.c
+    machine_spi.c
+    machine_pin.c
+    modbluetooth_zephyr.c
+    modsocket.c
+    modzephyr.c
+    modzsensor.c
+    mphalport.c
+    uart_core.c
+    zephyr_device.c
+    zephyr_storage.c
+    mpthreadport.c
+)
+list(TRANSFORM MICROPY_SOURCE_PORT PREPEND ${MICROPY_PORT_DIR}/)
+\end{lstlisting}
+
+Those modules are direct ports of the equivalent Python or MicroPython modules with use of 
+Zephyr APIs.
+
+Additionally, MicroPython's Zephyr port contains \textit{prj.conf} file that is passed to 
+Zephyr when compiling the port and it hav \textit{CONFIG\_MICROPY\_CONFIGFILE} parameter that
+specifies a modules configuration file \textit{mpconfigport.h} :
+\begin{lstlisting}[caption=Part of MicroPython's Zephyr port mpconfigport.h module conifguration file, breaklines=true]
+...
+#define MICROPY_ENABLE_SOURCE_LINE  (1)
+#define MICROPY_STACK_CHECK         (1)
+#define MICROPY_ENABLE_GC           (1)
+#define MICROPY_ENABLE_FINALISER    (MICROPY_VFS)
+#define MICROPY_HELPER_REPL         (1)
+#define MICROPY_REPL_AUTO_INDENT    (1)
+#define MICROPY_KBD_EXCEPTION       (1)
+#define MICROPY_PY_ASYNC_AWAIT      (0)
+#define MICROPY_PY_BUILTINS_BYTES_HEX (1)
+#define MICROPY_PY_BUILTINS_FILTER  (0)
+#define MICROPY_PY_BUILTINS_MIN_MAX (0)
+#define MICROPY_PY_BUILTINS_PROPERTY (0)
+...
+\end{lstlisting}
+
+The \textit{mpconfigport.h} file contains a list of C macros\cite{kernighan_c} that act like 
+a switch to enable and disable said modules.
+
+An analysis yielded the following list of the supported modules in MicroPython's Zephyr port:
+\begin{lstlisting}[caption=Zephyr port modules, breaklines=true]
+binascii    hashlib         
+builins     machine    
+errno       math       
+gc          micropython
+os          usys
+socket      utime
+sys         vfs
+time        zephyr
+zsensor
+\end{lstlisting}
+
+\podsekce{Comparing modules availability in two ports}
+The table below summarizes the difference in module support between NXP's and Zephyr MicroPython ports:
+
+\begin{table}[H]
+\centering
+\caption{Difference in module support of NXP's and Zephyr MicroPython ports}
+\label{tab:micropython-modules}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|c|c|} \hline
+\textbf{MicroPython Port to Zephyr} & \textbf{NXP's MicroPython implementation} \\ \hline
+& array \\ \hline
+& asyncio \\ \hline
+binascii & binascii \\ \hline
+builtins & builtins \\ \hline
+& cmath \\ \hline
+& collections \\ \hline
+& deflate \\ \hline
+& dht \\ \hline
+& ds18x20 \\ \hline
+errno & errno \\ \hline
+& framebuf \\ \hline
+gc & gc \\ \hline
+hashlib & hashlib \\ \hline
+& heapq \\ \hline
+& io \\ \hline
+& json \\ \hline
+machine & machine \\ \hline
+math & math \\ \hline
+& mcx \\ \hline
+micropython & micropython \\ \hline
+& onewire \\ \hline
+os & os \\ \hline
+& platform \\ \hline
+& random \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\ContinuedFloat
+\caption*{(continued)}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|c|c|} \hline
+\textbf{MicroPython Port to Zephyr} & \textbf{NXP's MicroPython implementation} \\ \hline
+& re \\ \hline
+& select \\ \hline
+& struct \\ \hline
+socket & \\ \hline
+sys & sys \\ \hline
+time & time \\ \hline
+& uasyncio \\ \hline
+& uctypes \\ \hline
+usys & usys \\ \hline
+utime & utime \\ \hline
+vfs & \\ \hline
+zephyr & \\ \hline
+zsensor & \\ \hline
+\end{tabular}
+\end{table}
+
+While NXP's MicroPyton port offers more extensive set of supported modules, the MicroPython's 
+Zephyr port offers core modules enough for many embedded applications.
+
+
 \begin{literatura}
 
 % ZEPHYR sources
@@ -665,6 +834,11 @@ functions.
 
 % Other sources
 \citace{jayantilal_hc05}{Jayantilal, S. H., Interfacing of AT command based HC-05 serial Bluetooth module with minicom in Linux, 2014}{Jayantilal, S. H., Interfacing of AT command based HC-05 serial Bluetooth module with minicom in Linux, International Journal for Scientific Research and Development, 2014; 2(3): 329–332}
+
+\citace{kernighan_c}{Kernighan, B. W., Ritchie, D. M., The C programming language, 2nd ed., 1988}{Kernighan, B. W., Ritchie, D. M., The C programming language, 2nd edition, Englewood Cliffs: Prentice Hall, 1988. ISBN 0-13-110362-8}
+
+
 \citace{gnu_screen}{Free Software Foundation, GNU Screen, 2016}{Free Software Foundation, GNU Screen [online], 2016 Available from: https://www.gnu.org/software/screen/}
+
 \end{literatura}
 \end{document}
