@@ -220,7 +220,7 @@ push buttons and has an option to be extended with external devices.
 \endobr{FRDM-MCXN947 Block diagram \obrzdroj{\cite{mcxn947_web}}}
 
 \podsekce{Signal Multiplexing}
-FRDM-MXCN947 enables use of several functions for different pins by utilizing Signal 
+FRDM-MCXN947 enables use of several functions for different pins by utilizing Signal 
 Multiplexing. For example pin \textbf{P0\_10} which is an red RGB pin can use \textbf{GPIO} 
 functionality directly, \textbf{FLEXCOMM} by utilizing \textbf{FC0\_P6} FLEXCOMM device,
 \textbf{CTIMER} by utilizing \textbf{CT0\_MAT0} CTIMER device, and \textbf{FLEXIO} 
@@ -318,16 +318,16 @@ build. The section will conclude with an illustrative program.
 This section will compare two MicroPython builds the NXP native MicroPython implementation 
 and Zephyr port focusing on availability and functionality of the built-in modules. The 
 goal of this  section is to identify what modules are supported by each implementation and to 
-highlight the missing features.
+highlight the missing features. In process how modules are getting added to the MicroPython's Zephyr port will be explored, which will allow to extend modules support in feature section.
 
 \sekce{Extending Zephyr Port functionality}
 This section will try to extend the MicroPython's Zephyr port with modules. 
 
-First, the process of how modules are getting added will be explained. Then how a new module
-could be created, and how to add this module to the MicroPython build. Next MicroPython 
-Zephyr port will be extended by modules to make it on par with NXP port. Finally, a community 
-extension will be added to bring a PWM support and the board build will be configured with 
-\textit{Kconfig} and \textit{Devicetree} for PWM to work.
+First, list of modules available to use in MicroPython's Zephyr port will be extended by 
+methods explored in previous section. Next, a community extension will be added to bring a 
+PWM support and the board build will be configured with \textit{Kconfig} and 
+\textit{Devicetree} for PWM to work. Finally, how a new module
+could be created, and how to add this module to the MicroPython build.
 
 \sekce{Creating an HTTP server of FRDM-MCXN947 with MicroPython's Zephyr port}
 In this section the process and steps to create a web server for controlling the
@@ -493,7 +493,7 @@ LinkServer flash MCXN947:FRDM-MCXN947 erase
 \end{lstlisting}
 
 To flash the binary to the FRDM-MCXN947 this command is used:
-\begin{lstlisting}[caption=LnkServer flasg,breaklines=true]
+\begin{lstlisting}[caption=LinkServer flash,breaklines=true]
 LinkServer flash MCXN947:FRDM-MCXN947 load firmware.bin  --addr 0
 \end{lstlisting}
 After the flash process has ended, serial port connection could be made to the board, which will reveal REPL environment for code execution.
@@ -551,7 +551,7 @@ utility.
 
 \obrazek
 \vlozobr{images/mpy_tempreture_test}{0.80}
-\endobr{Output of the FRDM-MXN947 board after loading temperature reading program}
+\endobr{Output of the FRDM-MCXN947 board after loading temperature reading program}
 
 It is now verified that the MicroPython port by NXP works correctly on the FRDM-MCXN947 board.
 
@@ -664,7 +664,7 @@ onewire                 uctypes
 Modules could also be passed as parameters to the \textit{help()} function to reveal what 
 functions does the module have and what constants it defines.
 
-\podsekce{Modules available on Zephyr port}
+\podsekce{Modules available on Zephyr port}\label{zephyr_mpy_moduels}
 In contrast to the NXP's port, running \textit{help('modules')} does not yield the supported 
 modules. Instead to get the list of supported modules it is needed to either try to import 
 modules and pass them to the \textit{help()} function or to read the source-code of the 
@@ -791,6 +791,164 @@ zsensor & \\ \hline
 While NXP's MicroPyton port offers more extensive set of supported modules, the MicroPython's 
 Zephyr port offers core modules enough for many embedded applications.
 
+\sekce{Extending Zephyr Port functionality}
+\podsekce{Enabling and Disabling Modules}
+This subsection aims to bring two MicroPython ports closer together in modules support by 
+adding modules to the Zephyr port. This will be achieved mainly through use 
+\textit{mpconfigport.h} file shown in the previous section.
+
+As discussed in subsection \ref{zephyr_mpy_moduels} modules are added to the Zephyr port of 
+MicroPython either via \textit{mpconfigport.h} or \textit{CMakeList.txt} files, which enable 
+customization of the final build.
+
+Thus, by switching some macro values in mpconfigport.h :
+\begin{lstlisting}[caption={Extending Zephyr port modules support, Part 1},breaklines=true]
+#define MICROPY_PY_ARRAY            (1)
+#define MICROPY_PY_COLLECTIONS      (1)
+#define MICROPY_PY_IO               (1)
+#define MICROPY_PY_STRUCT           (1)
+\end{lstlisting}
+and rebuilding the port, the \textit{array, collections, io} and \textit{struct} modules 
+become usable in the MicroPython's Zephyr port.
+
+Some modules, namely \textit{deflate, framebuf, heapq, json, platform, random, re, select, uctypes, asyncio},
+are not available to configuration neither in \textit{mpconfigport.h} nor 
+\textit{CMakeList.txt} files. Implementations of these modules are found in \textit{/extmod} 
+directory of MicroPython source code, which is meant to host non-core modules implemented in 
+C. In those implementations it is possible to find macros that enable them. By adding those 
+macros to the \textit{mpconfigport.h} file of Zephyr port:
+\begin{lstlisting}[caption={Extending Zephyr port modules support, Part 2},breaklines=true]
+#define MICROPY_PY_DEFLATE          (1)
+#define MICROPY_PY_FRAMEBUF         (1)
+#define MICROPY_PY_HEAPQ            (1)
+#define MICROPY_PY_JSON             (1)
+#define MICROPY_PY_PLATFORM         (1)
+#define MICROPY_PY_RANDOM           (1)
+#define MICROPY_PY_RE               (1)
+#define MICROPY_PY_SELECT           (1)
+#define MICROPY_PY_UCTYPES          (1)
+#define MICROPY_PY_ASYNCIO          (1)
+\end{lstlisting}
+and rebuilding the port all the modules expect for \textit{asyncio} become available to use 
+in the Zephyr port of MicroPython. The issue with \textit{asyncio} module lies in how it is 
+registered in the build:
+\begin{lstlisting}[caption=Asyncio module in MicroPython's Zephyr port, breaklines=true]
+MP_REGISTER_MODULE(MP_QSTR__asyncio, mp_module_asyncio);
+\end{lstlisting}
+it's name thus is \textit{\_asyncio} and importing it by this name too makes it available in 
+MicroPython's Zephyr port .
+
+Finally, to add \textit{cmath} support a board needs to have a floating point numbers 
+capabilities \cite{mpy_cmath} which FRDM-MCXN947 has. The \textit{cmath} modules is 
+implemented in \textit{/py} MicroPython directory and is enabled with combination of the 
+macros \textit{MICROPY\_PY\_BUILTINS\_FLOAT}, \textit{MICROPY\_PY\_CMATH} and 
+\textit{MICROPY\_PY\_BUILTINS\_COMPLEX}. The last macro is already defined in the 
+\textit{mpconfigport.h} file and only needs to be enabled, the first two need to be added and 
+enabled:
+\begin{lstlisting}[caption={Extending Zephyr port modules support, Part 3},breaklines=true]
+#define MICROPY_PY_BUILTINS_FLOAT   (1)
+#define MICROPY_PY_BUILTINS_COMPLEX (1)
+#define MICROPY_PY_CMATH            (1)
+\end{lstlisting}
+and after rebuilding the Zephyr port those modules are too available in the port.
+
+After the process of adding modules the difference in supported modules between two ports 
+have narrowed and the Table \ref{tab:micropython-modules} can be updated now to show off the 
+progress:
+
+\begin{table}[H]
+\centering
+\caption{Difference in module support of NXP's and Zephyr MicroPython ports after adding modules to Zephyr port}
+\label{tab:micropython-modules-updated}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|c|c|} \hline
+\textbf{MicroPython Port to Zephyr} & \textbf{NXP's MicroPython implementation} \\ \hline
+array & array \\ \hline
+\_asyncio & asyncio \\ \hline
+binascii & binascii \\ \hline
+builtins & builtins \\ \hline
+cmath & cmath \\ \hline
+collections & collections \\ \hline
+deflate & deflate \\ \hline
+& dht \\ \hline
+& ds18x20 \\ \hline
+errno & errno \\ \hline
+framebuf & framebuf \\ \hline
+gc & gc \\ \hline
+hashlib & hashlib \\ \hline
+heapq & heapq \\ \hline
+io & io \\ \hline
+json & json \\ \hline
+machine & machine \\ \hline
+math & math \\ \hline
+& mcx \\ \hline
+micropython & micropython \\ \hline
+& onewire \\ \hline
+os & os \\ \hline
+platform & platform \\ \hline
+random & random \\ \hline
+re & re \\ \hline
+select & select \\ \hline
+struct & struct \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\ContinuedFloat
+\caption*{(continued)}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|c|c|} \hline
+\textbf{MicroPython Port to Zephyr} & \textbf{NXP's MicroPython implementation} \\ \hline
+socket & \\ \hline
+sys & sys \\ \hline
+time & time \\ \hline
+& uasyncio \\ \hline
+uctypes & uctypes \\ \hline
+usys & usys \\ \hline
+utime & utime \\ \hline
+vfs & \\ \hline
+zephyr & \\ \hline
+zsensor & \\ \hline
+\end{tabular}
+\end{table}
+
+\podsekce{Community contributed features}
+In this subsection the \textit{PWM} support will be added to the Zephyr port. Although the 
+\textit{PWM} is not officially supported in the upstream repository by the Zephyr MicroPython 
+port, at the time of writing, it is available as a pull request that has not yet been merged 
+by the maintainer. First, the branch with the \textit{PWM} support will be downloaded and 
+configured in a similar way to the previous subsection to bring support of the other modules. 
+Next, an additional configuration will be made via \textit{Kconfig} to make the \textit{PWM} 
+support available after building the MicroPython's Zephyr port.
+
+First, the code with \textit{PWM} support needs to be cloned from the contributor:
+\begin{lstlisting}[caption=Obtaining MicroPython's Zephyr port version with PWM support, breaklines=true]
+git clone https://github.com/Ayush1325/micropython.git
+\end{lstlisting}
+In the cloned project \textit{Kconfig} file \textit{frdm\_mcxn947\_mcxn947\_cpu0.conf} for 
+FRDM-MCXN947 configuration needs to be created in the  \textit{ports/zephyr/boards} directory 
+containing :
+\begin{lstlisting}[caption=Kconfig configuration for PWM support on FRDM-MCXN947 board]
+CONFIG_PWM=y
+CONFIG_PWM_MCUX=y
+\end{lstlisting}
+
+Both \textit{CONFIG\_PWM}\cite{zehpyr_pwm} and 
+\textit{CONFIG\_PWM\_MCUX}\cite{zehpyr_pwm_mcux} are Zephyr build flags to enable 
+\textit{PWM} and \textit{mcux PWM driver} respectively.
+
+After configuration, the port with \textit{PWM} support can be build by passing to Zephyr's
+\textit{west} the path to \textit{ports/zephyr/} directory of newly configured MicroPython 
+version. Following the build and flash processes the \textit{PWM} functionality becomes 
+enabled and can be tested via REPL environment on the \textit{pwm0} device, defined in FRDM-MCXN947 \textit{Devicetree} configuration in the Zephyr source code:
+\begin{lstlisting}[caption=Testing PWM in REPL environment of the Zephyr MicroPython port, breaklines=true]
+from machine import PWM
+pwm = PWM(("pwm0", 0), freq=500, duty_ns=200)
+print(pwm)
+print(pwm.duty_ns())
+\end{lstlisting}
+The program outputs the defined \textit{PWM} object and the duty cycle, indicating that
+the community feature was successfully added. 
 
 \begin{literatura}
 
@@ -808,6 +966,10 @@ Zephyr port offers core modules enough for many embedded applications.
 \citace{zephyr_cmake_commands}{Zephyr Project, Additional Zephyr extension commands, 2025}{Zephyr Project, Additional Zephyr extension commands [online], 2025 Available from: https://docs.zephyrproject.org/latest/develop/west/zephyr-cmds.html}
 
 \citace{zehpyr_west_building}{Zephyr Project, Building, Flashing and Debugging, 2024}{Zephyr Project, Building, Flashing and Debugging, [online], 2024 Available from: https://docs.zephyrproject.org/latest/develop/west/build-flash-debug.html}
+
+\citace{zehpyr_pwm}{Zephyr Project, CONFIG\_PWM, 2023}{Zephyr Project, CONFIG\_PWM, [online], 2023 Available from: https://docs.zephyrproject.org/2.7.5/reference/kconfig/CONFIG\_PWM.html}
+
+\citace{zehpyr_pwm_mcux}{Zephyr Project, CONFIG\_PWM\_MCUX, 2023}{Zephyr Project, CONFIG\_PWM\_MCUX, [online], 2023 Available from: https://docs.zephyrproject.org/2.7.5/reference/kconfig/CONFIG\_PWM\_MCUX.html}
 
 % Zephyr related sources
 \citace{devicetree_spec}{devicetree.org, Devicetree Specification Release v0.4, 2023}{devicetree.org, Devicetree Specification Release v0.4, 2023}
@@ -831,6 +993,8 @@ Zephyr port offers core modules enough for many embedded applications.
 \citace{mpy_book}{Nicholas H. Tollervey, 2017}{\autor{Nicholas H. Tollervey} \nazev{Programming with MicroPython: embedded programming with microcontrollers and Python}. O'Reilly Media, Inc., 2017. ISBN 978-1-491-97273-1}
 
 \citace{mpy_boards}{MicroPython, MicroPython downloads, 2025}{MicroPython, MicroPython downloads [online], 2025 Available from: https://micropython.org/download/}
+
+\citace{mpy_cmath}{MicroPython, cmath – mathematical functions for complex numbers, 2025}{MicroPython, cmath – mathematical functions for complex numbers [online], 2025 Available from: https://docs.micropython.org/en/latest/library/cmath.html}
 
 % Other sources
 \citace{jayantilal_hc05}{Jayantilal, S. H., Interfacing of AT command based HC-05 serial Bluetooth module with minicom in Linux, 2014}{Jayantilal, S. H., Interfacing of AT command based HC-05 serial Bluetooth module with minicom in Linux, International Journal for Scientific Research and Development, 2014; 2(3): 329–332}
