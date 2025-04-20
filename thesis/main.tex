@@ -948,7 +948,62 @@ print(pwm)
 print(pwm.duty_ns())
 \end{lstlisting}
 The program outputs the defined \textit{PWM} object and the duty cycle, indicating that
-the community feature was successfully added. 
+the community feature was successfully added.
+
+\podsekce{Implementing new modules}
+This subsection will touch on the process of implementing completely new modules for
+MicroPython's Zephyr port by creating a simple demonstrative module.
+
+First, the macro that will enable the new module after building and flashing the MicroPython 
+to FRDM-MCXN947 board is defined in the \textit{mpconfigport.h} file:
+\begin{lstlisting}[caption={Implementing a new module for the Zephyr port, Part 1},breaklines=true]
+#define MICROPY_NEW_MODULE           (1)
+\end{lstlisting}
+
+Next, the module file is created and added to a list of included files from the Zephyr port 
+directory in the\textit{CMakeList.txt} file:
+\begin{lstlisting}[caption={Implementing a new module for the Zephyr port, Part 2},breaklines=true]
+set(MICROPY_SOURCE_PORT
+    ...
+    mod_new_mod.c
+    ...
+)
+list(TRANSFORM MICROPY_SOURCE_PORT PREPEND ${MICROPY_PORT_DIR}/)  
+\end{lstlisting}
+This will add the \textit{mod\_new\_mod.c} file to a list of sources under the variable 
+\textit{MICROPY\_SOURCE\_PORT} and then prepend those sources with a path to the Zephyr port 
+directory from the \textit{MICROPY\_PORT\_DIR} variable. Doing so will ensure that the 
+compiler can later find \textit{mod\_new\_mod.c} module file and include it in the final 
+build.\cite{swidzinski_cmake}
+
+The module implementation is as follows:
+\begin{lstlisting}[caption={Implementing a new module for the Zephyr port, Part 3},breaklines=true]
+#include "py/runtime.h"
+
+#if MICROPY_NEW_MODULE
+
+static mp_obj_t newmod_info(void) {
+    mp_print_str(MP_PYTHON_PRINTER, "function that prints out information about the new module\n");
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_0(newmod_info_obj, newmod_info);
+
+static const mp_rom_map_elem_t newmod_module_globals_table[] = {
+    { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_OBJ_NEW_QSTR(MP_QSTR_newmod) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_newstr), MP_OBJ_NEW_QSTR(MP_QSTR_newstringvalue) },
+    { MP_ROM_QSTR(MP_QSTR_info), MP_ROM_PTR(&newmod_info_obj) },
+};
+static MP_DEFINE_CONST_DICT(newmod_module_globals, newmod_module_globals_table);
+
+const mp_obj_module_t newmod_module = {
+    .base = { &mp_type_module },
+    .globals = (mp_obj_dict_t *)&newmod_module_globals,
+};
+
+MP_REGISTER_MODULE(MP_QSTR_newmod, newmod_module);
+
+#endif
+\end{lstlisting}
 
 \begin{literatura}
 
@@ -1000,6 +1055,8 @@ the community feature was successfully added.
 \citace{jayantilal_hc05}{Jayantilal, S. H., Interfacing of AT command based HC-05 serial Bluetooth module with minicom in Linux, 2014}{Jayantilal, S. H., Interfacing of AT command based HC-05 serial Bluetooth module with minicom in Linux, International Journal for Scientific Research and Development, 2014; 2(3): 329–332}
 
 \citace{kernighan_c}{Kernighan, B. W., Ritchie, D. M., The C programming language, 2nd ed., 1988}{Kernighan, B. W., Ritchie, D. M., The C programming language, 2nd edition, Englewood Cliffs: Prentice Hall, 1988. ISBN 0-13-110362-8}
+
+\citace{swidzinski_cmake}{Swidzinski, R., Modern CMake for C++, 2022}{Swidzinski, R., Modern CMake for C++: Discover a better approach to building, testing, and packaging your software, Birmingham: Packt Publishing Ltd, 2022. ISBN 9781803239729}
 
 
 \citace{gnu_screen}{Free Software Foundation, GNU Screen, 2016}{Free Software Foundation, GNU Screen [online], 2016 Available from: https://www.gnu.org/software/screen/}
