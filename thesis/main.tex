@@ -325,14 +325,15 @@ This section will try to extend the MicroPython's Zephyr port with modules.
 
 First, list of modules available to use in MicroPython's Zephyr port will be extended by 
 methods explored in previous section. Next, a community extension will be added to bring a 
-PWM support and the board build will be configured with \textit{Kconfig} and 
-\textit{Devicetree} for PWM to work. Finally, how a new module
+PWM support and the board build will be configured with \textit{Kconfig} for PWM to work. Finally, how a new module
 could be created, and how to add this module to the MicroPython build.
 
 \sekce{Creating an HTTP server of FRDM-MCXN947 with MicroPython's Zephyr port}
 In this section the process and steps to create a web server for controlling the
 FRDM-MCXN947 board will be discussed. Zephyr's strong networking stack will be utilized for 
-local network IP configuration as well as data transition and reception. The necessary 
+local network IP configuration as well as data transition and reception. The configuration 
+process using \textit{Kconfig} and \textit{Devicetree} will be needed to enable certain 
+parts of the Zephyr core libraries or to configure the hardware interface. The necessary
 configuration will be explained along with the code for the server.
 
 \kapitola{Implementation}
@@ -1005,6 +1006,17 @@ MP_REGISTER_MODULE(MP_QSTR_newmod, newmod_module);
 #endif
 \end{lstlisting}
 
+\textit{\#if MICROPY\_NEW\_MODULE} ensures the module is active only when enabled in 
+the\textit{mpconfigport.h} file. A function \textit{newmod\_info} is defined that prints out
+text to MicroPython's standard output. All module objects are listed in 
+\textit{newmod\_module\_globals\_table}, where a string constant 
+\textit{newstr} is also defined. The table is converted into a dictionary using 
+\textit{MP\_DEFINE\_CONST\_DICT}, which is then added to the \textit{newmod\_module} object 
+representing the new module. The module object is then registered as a module under the name 
+\textit{newmod}.\cite{mpy_new_module}
+
+After building and flashing the Zephyr port with the new module added, it becomes fully usable after importing.
+
 \begin{literatura}
 
 % ZEPHYR sources
@@ -1050,6 +1062,8 @@ MP_REGISTER_MODULE(MP_QSTR_newmod, newmod_module);
 \citace{mpy_boards}{MicroPython, MicroPython downloads, 2025}{MicroPython, MicroPython downloads [online], 2025 Available from: https://micropython.org/download/}
 
 \citace{mpy_cmath}{MicroPython, cmath – mathematical functions for complex numbers, 2025}{MicroPython, cmath – mathematical functions for complex numbers [online], 2025 Available from: https://docs.micropython.org/en/latest/library/cmath.html}
+
+\citace{mpy_new_module}{MicroPython, Implementing a Module, 2025}{MicroPython, Implementing a Module [online], 2025 Available from: https://docs.micropython.org/en/latest/develop/library.html}
 
 % Other sources
 \citace{jayantilal_hc05}{Jayantilal, S. H., Interfacing of AT command based HC-05 serial Bluetooth module with minicom in Linux, 2014}{Jayantilal, S. H., Interfacing of AT command based HC-05 serial Bluetooth module with minicom in Linux, International Journal for Scientific Research and Development, 2014; 2(3): 329–332}
