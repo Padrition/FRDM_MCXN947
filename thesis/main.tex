@@ -1017,8 +1017,135 @@ representing the new module. The module object is then registered as a module un
 
 After building and flashing the Zephyr port with the new module added, it becomes fully usable after importing.
 
-\begin{literatura}
+\sekce{Creating an HTTP server of FRDM-MCXN947 with
+MicroPython’s Zephyr port}
+\podsekce{Introduction}
+One of the objectives of the thesis was to build a lightweight implementation of HTTP server 
+that can run on the FRMD-MCXN947 development board that will utilize capabilities of 
+MicorPython's Zephyr port. The server provides simple web interface that could be used in 
+browser and provides board interaction, specifically interaction with \textit{CTIMER} 
+functionality of LED pins of the FRDM-MCXN947 board.
 
+The implementation of the HTTP server is built on top of a custom MicroPython's Zephyr port. 
+The build also includes additional hardware configuration with \textit{Devicetree} and 
+Zephyr's network capabilities configuration with \textit{Kconfig}. Both configurations are 
+defined in port directory and are compiled as \textit{overlay} configurations. 
+
+\podsekce{Devicetree configuration}
+This subsection describes the necessary \textit{Devicetree} configuration to enable 
+\textit{PWM} output through \textit{CTIMER} function available to the pins \textit{P0\_10, P0\_27, P1\_2} via \textit{pin multiplexing} technology\cite{mcx_manual}, which is available 
+on the FRDM-MCXN947 board. The \textit{Devicetree} configuration is as follows:
+\begin{lstlisting}[caption={Configuring PWM support through CTIMER functionality on FRDM-MCXN947 pins P0\_10, P0\_27 and P1\_2 with Devicetree},breaklines=true]
+#include <zephyr/dt-bindings/pwm/pwm.h>
+#include <nxp/mcx/MCXN947VDF-pinctrl.h>
+/ {
+    aliases {
+        red-pwm-led = &red_pwm_led;
+        green-pwm-led = &gree_pwm_led;
+        blue-pwm-led = &blue_pwm_led;
+    };
+
+    pwmleds {
+        compatible = "pwm-leds";
+        red_pwm_led: pwm_led_0 {
+            pwms = <&ctimer0 0 255 PWM_POLARITY_NORMAL>;
+            label = "red led pwm";
+        };
+
+        gree_pwm_led: pwm_led_1 {
+            pwms = <&ctimer0 3 255 PWM_POLARITY_NORMAL>;
+            label = "green led pwm";
+        };
+
+        blue_pwm_led: pwm_led_3 {
+            pwms = <&ctimer1 0 255 PWM_POLARITY_NORMAL>;
+            label = "green led pwm";
+        };
+    };
+};
+
+&ctimer0 {
+    compatible = "nxp,ctimer-pwm";
+    #pwm-cells = <3>;
+    status = "okay";
+    pinctrl-0 = <&pinmux_ctimer0_pwm_red_green>;
+	pinctrl-names = "default";
+};
+
+&ctimer1 {
+    compatible = "nxp,ctimer-pwm";
+    #pwm-cells = <3>;
+    status = "okay";
+    pinctrl-0 = <&pinmux_ctimer0_pwm_blue>;
+	pinctrl-names = "default";
+};
+
+&pinctrl {
+    pinmux_ctimer0_pwm_red_green: pinmux_ctimer0_pwm_red_green {
+        group0 {
+            pinmux = <CT0_MAT0_PIO0_10>,
+                <CT0_MAT3_PIO0_27>;
+            slew-rate = "fast";
+            drive-strength = "low";
+        };
+    };
+    pinmux_ctimer0_pwm_blue: pinmux_ctimer0_pwm_blue {
+        group0 {
+            pinmux = <CT1_MAT0_PIO1_2>;
+            slew-rate = "fast";
+            drive-strength = "low";
+        };
+    };
+};
+\end{lstlisting}
+
+In \textit{\&pinctrl} node, which controls \textit{pin multiplexing} and configuration 
+parameters\cite{zephyr_start}, the two labels \textit{pinmux\_ctimer0\_pwm\_blue} and 
+\textit{pinmux\_ctimer0\_pwm\_red\_green} are used to configure \textit{CT0\_MAT0\_PIO0\_10, 
+CT0\_MAT3\_PIO0\_27} and \textit{CT1\_MAT0\_PIO1\_2} \textit{pin multiplexing functions}. 
+Those functions are mapped to the hardware addresses in \textit{MCXN947VDF-pinctrl.h} file 
+that is included at the top of the configuration.
+
+The labels are then passed to the lists of pin configuration nodes \textit{pinctrl-0} in 
+their corresponding peripheral nodes \textit{\&ctimer0} and \textit{\&ctimer1}. The 
+peripherals \textit{ctimer0} and \textit{ctimer1} are configured to use \textit{nxp,ctimer-
+pwm} driver for \textit{PWM} support. The peripherals are then enabled by being set to status \textit{okay}.
+
+In the \textit{pwmleds} node the \textit{PWM} channels are set to the desired frequency and polarity. In \textit{aliases} node aliases are created for the pin functions.
+
+After this configuration the MicroPython's Zephyr port built is ready to use \textit{CTIMER} function in \textit{PWM} mode for FRDM-MCXN947 pins \textit{P0\_10, P0\_27, P1\_2}.
+
+\podsekce{Kconfig configuration}
+This subsection describes the neccessary \textit{Kconfig} configuration to enable \textit{PWM} and networking use and their various components. The \textit{Kconfig} configuration is as follows:
+
+\begin{lstlisting}[caption={Configuring PWM and networking support in MicroPython's Zephyr port with Kconfig},breaklines=true]
+CONFIG_NETWORKING=y
+CONFIG_NET_SOCKETS=y
+CONFIG_NET_SOCKETS_POLL_MAX=4
+
+CONFIG_NET_IPV4=y
+
+CONFIG_NET_TCP=y
+
+CONFIG_NET_L2_ETHERNET=y
+
+CONFIG_PWM=y
+CONFIG_PWM_MCUX=y
+
+CONFIG_NET_BUF_FIXED_DATA_SIZE=y
+CONFIG_NET_BUF_DATA_SIZE=2048 
+\end{lstlisting}
+
+The flags \textit{CONFIG\_NETWORKING, CONFIG\_NET\_SOCKETS, CONFIG\_NET\_SOCKETS\_POLL\_MAX} 
+are Zephyr flags used to enable network and allow basic socket configuration. The flags 
+\textit{CONFIG\_NET\_IPV4} and \textit{CONFIG\_NET\_TCP} are enabling \textit{IPv4} and 
+\textit{TCP} support respectively. The \textit{CONFIG\_NET\_L2\_ETHERNET} enables 
+\textit{Ethernet} support, it is needed because the board is connected to the local network
+via Ethernet cable. \textit{CONFIG\_PWM} and \textit{CONFIG\_PWM\_MCUX} are for \textit{PWM}
+support and to enable the right driver. The \textit{CONFIG\_NET\_BUF\_FIXED\_DATA\_SIZE} and 
+\textit{CONFIG\_NET\_BUF\_DATA\_SIZE} flags are used for increasing default data buffer size for data transmission of the network. 
+
+\begin{literatura}
 % ZEPHYR sources
 \citace{zephyr1}{Zephyr Project, Introduction, 2024}{Zephyr Project, Introduction [online], 2024 Available from: https://docs.zephyrproject.org/latest/introduction/index.html}
 
@@ -1040,6 +1167,9 @@ After building and flashing the Zephyr port with the new module added, it become
 
 % Zephyr related sources
 \citace{devicetree_spec}{devicetree.org, Devicetree Specification Release v0.4, 2023}{devicetree.org, Devicetree Specification Release v0.4, 2023}
+
+\citace{zephyr_start}{Ramírez-Sánchez, Earl O., A Practical Start with Zephyr RTOS, 2024}{Ramírez-Sánchez, Earl O., A Practical Start with Zephyr RTOS, 2024}
+
 
 % FRDM-MCXN947 sources
 
