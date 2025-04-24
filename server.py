@@ -1,6 +1,6 @@
 import socket
 import errno
-from machine import Pin, PWM
+from machine import PWM
 
 red_pwm = PWM(("ctimer0", 0), freq=1000, duty_ns=0)
 green_pwm = PWM(("ctimer0", 3), freq=1000, duty_ns=0)

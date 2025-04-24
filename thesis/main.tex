@@ -1143,7 +1143,141 @@ are Zephyr flags used to enable network and allow basic socket configuration. Th
 \textit{Ethernet} support, it is needed because the board is connected to the local network
 via Ethernet cable. \textit{CONFIG\_PWM} and \textit{CONFIG\_PWM\_MCUX} are for \textit{PWM}
 support and to enable the right driver. The \textit{CONFIG\_NET\_BUF\_FIXED\_DATA\_SIZE} and 
-\textit{CONFIG\_NET\_BUF\_DATA\_SIZE} flags are used for increasing default data buffer size for data transmission of the network. 
+\textit{CONFIG\_NET\_BUF\_DATA\_SIZE} flags are used for increasing default data buffer size 
+for data transmission of the network. 
+
+After this configuration the After this configuration the MicroPython's Zephyr port built is ready to utilize Zephyr's networking layer and have \textit{PWM} support enabled.
+
+\podsekce{HTTP server setup}
+After building and flashing new MicroPython's Zephyr port build with configuration from the
+previous subsections the HTTP server can be setup on the FRDM-MCXN947 board. The 
+prerequisite to running the server is to have the board connected to the local network via 
+\textit{Ethernet} cable. Zephyr handles \textit{DHCP} communication with the router to 
+obtain an IP address, when \textit{CONFIG\_NET\_DHCPV4} flag is 
+enabled(\textit{CONFIG\_NET\_DHCPV4} is enabled in default MicroPython's Zephyr port 
+\textit{Kconfig}). The server code is as follows:
+
+\begin{lstlisting}[caption={HTTP server implementation with MicroPython for MicroPython's Zehpyr port runing on FRDM-MCXN947 board},breaklines=true]
+import socket
+import errno
+from machine import PWM
+
+red_pwm = PWM(("ctimer0", 0), freq=1000, duty_ns=0)
+green_pwm = PWM(("ctimer0", 3), freq=1000, duty_ns=0)
+blue_pwm = PWM(("ctimer1", 0), freq=1000, duty_ns=0)
+
+CONTENT = b"""\
+HTTP/1.0 200 OK
+Connection: close
+Content-Type: text/html
+
+<html>
+<head>
+    <title>FRDM-MCXN947</title>
+    <script>
+        function setColor(event) {
+            let color = event.target.value;
+            fetch(`/set_color?hex=${encodeURIComponent(color)}`)
+                .then(response => console.log(`Color set to ${color}`))
+                .catch(error => console.error("Error setting color:", error));
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("colorPicker").addEventListener("input", setColor);
+        });
+    </script>
+</head>
+<body style="background-color: #333; color: #ffffff;">
+    <h1>FRDM-MCXN947</h1>
+    
+    <input type="color" id="colorPicker">
+</body>
+</html>
+
+"""
+def set_color(hex_color):
+    r, g, b = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
+    max_duty_cycle = 500_000
+    r = int((r / 255) * max_duty_cycle)
+    g = int((g / 255) * max_duty_cycle)
+    b = int((b / 255) * max_duty_cycle)
+    red_pwm.duty_ns(r)
+    green_pwm.duty_ns(g)
+    blue_pwm.duty_ns(b)
+
+def main(micropython_optimize=False):
+    print("starting")
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
+    addr = ("0.0.0.0", 8080)
+
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    try:
+        s.bind(addr)
+    except OSError as e:
+        print("Error:", e.errno, errno.errorcode.get(e.errno, "Unknown Error"))
+        return
+    s.listen(5)
+    print("Listening, connect your browser to http://<this_host>:8080/")
+
+    while True:
+        res = s.accept()
+        client_sock = res[0]
+        client_addr = res[1]
+        print("Client address:", client_addr)
+        print("Client socket:", client_sock)
+
+        if not micropython_optimize:
+            client_stream = client_sock.makefile("rwb")
+        else:
+            client_stream = client_sock
+
+        print("Request:")
+        req = client_stream.readline()
+        print(req)
+
+        request_line = req.decode().split()
+        if len(request_line) > 1:
+            path = request_line[1]
+            print("request line:", request_line)
+        else:
+            path = "/"
+
+        while True:
+            h = client_stream.readline()
+            if h == b"" or h == b"\r\n":
+                break
+        
+        if path.startswith("/set_color"):
+            hex_value = path.split("?hex=%23")[1]
+            set_color(hex_value)
+
+            client_stream.write(CONTENT)
+        else:
+            client_stream.write(CONTENT)
+
+        client_stream.close()
+        if not micropython_optimize:
+            client_sock.close()
+        print()
+
+main()
+\end{lstlisting}
+
+First, three \textit{PWM} objects are created, each corresponding to one of the three 
+\textit{CTIMER} channels for controlling red,green and blue LED lights. Each \textit{PWM} 
+object is configured with a 1 kHz frequency and a duty cycle of 0 nanoseconds, which 
+initially turns off the LED lights. The variable \textit{CONTENT} contains the \textit{HTML} 
+code that is served to the client on connection. The \textit{HTML} has simple 
+\textit{JavaScript} for sending a request back to the server. The \textit{set\_color} 
+function parses \textit{HEX} color string and updates each \textit{PWM} light with a
+corresponding configuration to give an appearance of the right color. The \textit{main} 
+function establishes \textit{TCP} socket on port 8080 and listens for an incoming
+connection. When the client client establishes connection, the server reads the request. If
+the path begins with \textit{/set\_color}, the server reads the hexadecimal color of the
+query string and passes it to the \textit{set\_color} function to set the color of LED 
+lights. After reconfiguring \textit{PWM} objects or when the client request does not have 
+\textit{/set\_color} string in the path, the server serves the \textit{HTML} content.
 
 \begin{literatura}
 % ZEPHYR sources
