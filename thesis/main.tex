@@ -8,11 +8,10 @@
 
 
 \lstdefinestyle{mystyle}{
-    % numbers=left,
-    % numbersep=5pt,
     showspaces=false,
     tabsize=2,
     frame=single,
+    basicstyle=\ttfamily\footnotesize,
 }
 \lstset{style=mystyle}
 
@@ -409,6 +408,7 @@ pip install west
 \end{lstlisting}
 
 With \textit{west} installed it could be used to obtain Zephyr's source code:
+\newpage
 \begin{lstlisting}[caption=Obtaining Zephyr's source code]
 west init
 west update
@@ -518,14 +518,12 @@ the FRDM-MCXN947 board:
 import machine, time
 
 P3T_ADDR = 72
-
 i2c = machine.I2C(5, scl=machine.Pin('P1_17'), sda=machine.Pin('P1_16'))
 
 class P3T1755:
     def __init__(self, i2c, addr):
         self.addr = addr
         self.i2c = i2c
-
         self.i2c.writeto(self.addr, b'\x00')
 
     def read(self):
@@ -633,33 +631,19 @@ includes a list of modules available for both ports. The analysis was made by im
 modules into the REPL environment and passing them to the \textit{help()} function.
 
 NXP port provides a variety of modules specific for the hardware of the FRDM-MCXN947 board 
-and common MicroPython modules. To get a list of supported modules on NXP port 
-\textit{help('modules')} command could be used in the REPL environment which returns the 
-following list:
-
-\newpage
+and common MicroPython modules. \textit{help('modules')} command could be used to return the 
+list of supported modules on NXP port:
 
 \begin{lstlisting}[caption=NXP's port modules, breaklines=true]
-__main__                asyncio/stream
-_asyncio                binascii      
-_boot                   builtins      
-_onewire                cmath         
-array                   collections   
-asyncio/__init__        deflate       
-asyncio/core            dht           
-asyncio/event           ds18x20       
-asyncio/funcs           errno         
-asyncio/lock            framebuf      
-gc                      os
-hashlib                 platform
-heapq                   random
-io                      re
-json                    select
-machine                 struct
-math                    sys
-mcx                     time
-micropython             uasyncio
-onewire                 uctypes
+__main__           asyncio/stream  gc            os        asyncio/lock
+_asyncio           binascii        hashlib       platform  framebuf
+_boot              builtins        heapq         random    onewire
+_onewire           cmath           io            re        uctypes
+array              collections     json          select
+asyncio/__init__   deflate         machine       struct
+asyncio/core       dht             math          sys
+asyncio/event      ds18x20         mcx           time
+asyncio/funcs      errno           micropython   uasyncio
 \end{lstlisting}
 
 Modules could also be passed as parameters to the \textit{help()} function to reveal what 
@@ -698,20 +682,12 @@ Additionally, MicroPython's Zephyr port contains \textit{prj.conf} file that is 
 Zephyr when compiling the port and it hav \textit{CONFIG\_MICROPY\_CONFIGFILE} parameter that
 specifies a modules configuration file \textit{mpconfigport.h} :
 \begin{lstlisting}[caption=Part of MicroPython's Zephyr port mpconfigport.h module conifguration file, breaklines=true]
-...
-#define MICROPY_ENABLE_SOURCE_LINE  (1)
-#define MICROPY_STACK_CHECK         (1)
 #define MICROPY_ENABLE_GC           (1)
 #define MICROPY_ENABLE_FINALISER    (MICROPY_VFS)
 #define MICROPY_HELPER_REPL         (1)
 #define MICROPY_REPL_AUTO_INDENT    (1)
 #define MICROPY_KBD_EXCEPTION       (1)
 #define MICROPY_PY_ASYNC_AWAIT      (0)
-#define MICROPY_PY_BUILTINS_BYTES_HEX (1)
-#define MICROPY_PY_BUILTINS_FILTER  (0)
-#define MICROPY_PY_BUILTINS_MIN_MAX (0)
-#define MICROPY_PY_BUILTINS_PROPERTY (0)
-...
 \end{lstlisting}
 
 The \textit{mpconfigport.h} file contains a list of C macros\cite{kernighan_c} that act like 
@@ -719,15 +695,9 @@ a switch to enable and disable said modules.
 
 An analysis yielded the following list of the supported modules in MicroPython's Zephyr port:
 \begin{lstlisting}[caption=Zephyr port modules, breaklines=true]
-binascii    hashlib         
-builins     machine    
-errno       math       
-gc          micropython
-os          usys
-socket      utime
-sys         vfs
-time        zephyr
-zsensor
+binascii   hashlib      os      usys   zsensor  micropython
+builins    machine      socket  utime  zephyr   gc
+errno      math         sys     vfs    time
 \end{lstlisting}
 
 \podsekce{Comparing modules availability in two ports}
@@ -738,54 +708,27 @@ The table below summarizes the difference in module support between NXP's and Ze
 \caption{Difference in module support of NXP's and Zephyr MicroPython ports}
 \label{tab:micropython-modules}
 \renewcommand{\arraystretch}{1.2}
-\begin{tabular}{|c|c|} \hline
-\textbf{MicroPython Port to Zephyr} & \textbf{NXP's MicroPython implementation} \\ \hline
-& array \\ \hline
-& asyncio \\ \hline
-binascii & binascii \\ \hline
-builtins & builtins \\ \hline
-& cmath \\ \hline
-& collections \\ \hline
-& deflate \\ \hline
-& dht \\ \hline
-& ds18x20 \\ \hline
-errno & errno \\ \hline
-& framebuf \\ \hline
-gc & gc \\ \hline
-hashlib & hashlib \\ \hline
-& heapq \\ \hline
-& io \\ \hline
-& json \\ \hline
-machine & machine \\ \hline
-math & math \\ \hline
-& mcx \\ \hline
-micropython & micropython \\ \hline
-& onewire \\ \hline
-os & os \\ \hline
-& platform \\ \hline
-& random \\ \hline
-\end{tabular}
-\end{table}
-
-\begin{table}[H]
-\ContinuedFloat
-\caption*{(continued)}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabular}{|c|c|} \hline
-\textbf{MicroPython Port to Zephyr} & \textbf{NXP's MicroPython implementation} \\ \hline
-& re \\ \hline
-& select \\ \hline
-& struct \\ \hline
-socket & \\ \hline
-sys & sys \\ \hline
-time & time \\ \hline
-& uasyncio \\ \hline
-& uctypes \\ \hline
-usys & usys \\ \hline
-utime & utime \\ \hline
-vfs & \\ \hline
-zephyr & \\ \hline
-zsensor & \\ \hline
+\begin{tabular}{|c|c||c|c|} \hline
+\textbf{Zephyr port} & \textbf{NXP port} & \textbf{Zephyr port} & \textbf{NXP port} \\ \hline
+ & array &  & asyncio \\ \hline
+binascii & binascii & builtins & builtins \\ \hline
+ & cmath &  & collections \\ \hline
+ & deflate & & dht \\ \hline
+& ds18x20 & errno & errno \\ \hline
+ & framebuf & gc & gc \\ \hline
+hashlib & hashlib &  & heapq \\ \hline
+ & io &  & json \\ \hline
+machine & machine & math & math \\ \hline
+& mcx & micropython & micropython \\ \hline
+& onewire & os & os \\ \hline
+ & platform &  & random \\ \hline
+ & re &  & select \\ \hline
+ & struct & socket & \\ \hline
+sys & sys & time & time \\ \hline
+& uasyncio &  & uctypes \\ \hline
+usys & usys & utime & utime \\ \hline
+vfs & & zephyr & \\ \hline
+zsensor & & & \\ \hline
 \end{tabular}
 \end{table}
 
@@ -853,63 +796,34 @@ enabled:
 \end{lstlisting}
 and after rebuilding the Zephyr port those modules are too available in the port.
 
-After the process of adding modules the difference in supported modules between two ports 
-have narrowed and the Table \ref{tab:micropython-modules} can be updated now to show off the 
-progress:
+After widening the module support on Zephyr the updated table is as follows:
 
 \begin{table}[H]
 \centering
 \caption{Difference in module support of NXP's and Zephyr MicroPython ports after adding modules to Zephyr port}
 \label{tab:micropython-modules-updated}
 \renewcommand{\arraystretch}{1.2}
-\begin{tabular}{|c|c|} \hline
-\textbf{MicroPython Port to Zephyr} & \textbf{NXP's MicroPython implementation} \\ \hline
-array & array \\ \hline
-\_asyncio & asyncio \\ \hline
-binascii & binascii \\ \hline
-builtins & builtins \\ \hline
-cmath & cmath \\ \hline
-collections & collections \\ \hline
-deflate & deflate \\ \hline
-& dht \\ \hline
-& ds18x20 \\ \hline
-errno & errno \\ \hline
-framebuf & framebuf \\ \hline
-gc & gc \\ \hline
-hashlib & hashlib \\ \hline
-heapq & heapq \\ \hline
-io & io \\ \hline
-json & json \\ \hline
-machine & machine \\ \hline
-math & math \\ \hline
-& mcx \\ \hline
-micropython & micropython \\ \hline
-& onewire \\ \hline
-os & os \\ \hline
-platform & platform \\ \hline
-random & random \\ \hline
-re & re \\ \hline
-select & select \\ \hline
-struct & struct \\ \hline
-\end{tabular}
-\end{table}
-
-\begin{table}[H]
-\ContinuedFloat
-\caption*{(continued)}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabular}{|c|c|} \hline
-\textbf{MicroPython Port to Zephyr} & \textbf{NXP's MicroPython implementation} \\ \hline
-socket & \\ \hline
-sys & sys \\ \hline
-time & time \\ \hline
-& uasyncio \\ \hline
-uctypes & uctypes \\ \hline
-usys & usys \\ \hline
-utime & utime \\ \hline
-vfs & \\ \hline
-zephyr & \\ \hline
-zsensor & \\ \hline
+\begin{tabular}{|c|c||c|c|} \hline
+\textbf{Zephyr port} & \textbf{NXP port} & \textbf{Zephyr port} & \textbf{NXP port} \\ \hline
+array & array & \_asyncio & asyncio \\ \hline
+binascii & binascii & builtins & builtins \\ \hline
+cmath & cmath & collections & collections \\ \hline
+deflate & deflate & & dht \\ \hline
+& ds18x20 & errno & errno \\ \hline
+framebuf & framebuf & gc & gc \\ \hline
+hashlib & hashlib & heapq & heapq \\ \hline
+io & io & json & json \\ \hline
+machine & machine & math & math \\ \hline
+& mcx & micropython & micropython \\ \hline
+& onewire & os & os \\ \hline
+platform & platform & random & random \\ \hline
+re & re & select & select \\ \hline
+struct & struct & socket & \\ \hline
+sys & sys & time & time \\ \hline
+& uasyncio & uctypes & uctypes \\ \hline
+usys & usys & utime & utime \\ \hline
+vfs & & zephyr & \\ \hline
+zsensor & & & \\ \hline
 \end{tabular}
 \end{table}
 
@@ -1044,14 +958,12 @@ on the FRDM-MCXN947 board. The \textit{Devicetree} configuration is as follows:
         green-pwm-led = &gree_pwm_led;
         blue-pwm-led = &blue_pwm_led;
     };
-
     pwmleds {
         compatible = "pwm-leds";
         red_pwm_led: pwm_led_0 {
             pwms = <&ctimer0 0 255 PWM_POLARITY_NORMAL>;
             label = "red led pwm";
         };
-
         gree_pwm_led: pwm_led_1 {
             pwms = <&ctimer0 3 255 PWM_POLARITY_NORMAL>;
             label = "green led pwm";
@@ -1278,6 +1190,46 @@ the path begins with \textit{/set\_color}, the server reads the hexadecimal colo
 query string and passes it to the \textit{set\_color} function to set the color of LED 
 lights. After reconfiguring \textit{PWM} objects or when the client request does not have 
 \textit{/set\_color} string in the path, the server serves the \textit{HTML} content.
+
+\podsekce{Running the server on FRMD-MCXN947}
+First connect the FRDM-MCXN947 board to the host PC and to the local network via Ethernet as shown:
+\newpage
+\obrazek
+\vlozobr{images/connected_board}{0.2}
+\endobr{FRDM-MCXN947 board correctly connected to the host PC and with Ethernet cable}
+
+Load the right firmware with \textit{PWM} support and correct configuration to the board with:
+\begin{lstlisting}[caption=Load the MicroPython's Zephyr Port with PWM support to the FRDM-MCXN947]
+LinkServer flash MCXN947:FRDM-MCXN947 load zephyr.bin --addr 0
+\end{lstlisting}
+
+Or rebuild and flash it with:
+\begin{lstlisting}[caption=Build and flash the MicroPython's Zephyr Port with PWM support to the FRDM-MCXN947, breaklines=true]
+west build -p always -b frdm_mcxn947/mcxn947/cpu0 micropython/ports/zephyr/
+west flash
+\end{lstlisting}
+
+Next load the board with the HTTP server program:
+\begin{lstlisting}[caption=Loading HTTP server to the FRDM-MCXN947 board]
+ampy --port /dev/ttyACM0 run http_server.py
+\end{lstlisting}
+The device file might be different from \textit{/dev/ttyACM0} on other systems.
+
+Connecting to the server requires devices' IP address. It could be obtained via the home network router interface or with the help of a network utility such as \textit{ arp-scan}.
+
+After connecting to the FRDM-MCXN947 IP address on port 8080 the web page is served:
+\newpage
+\obrazek
+\vlozobr{images/web_page}{0.6}
+\endobr{Web page served on connection to FRDM-MCXN947}
+
+From there the device could be controlled and on color change it will receive and respond to 
+the request. At this stage connecting to the board with serial port will reveal connection logs:
+
+\obrazek
+\vlozobr{images/server_logs}{0.8}
+\endobr{HTTPS server request logs}
+
 
 \begin{literatura}
 % ZEPHYR sources
