@@ -27,7 +27,7 @@ University for their teaching, openness, and constant support throughout my stud
 A big thank you to family members and friends for their support and encouragement.\\
 Finally, I express gratitude to the people who directly or indirectly contributed to the 
 creation of this work. To those who came before me and on whose shoulders I stand.}
-\prohlasenimuz{Brno ~03.08.2025}
+\prohlasenimuz{}
 
 \abstrakt{Titarenko, D. MicroPython Utilizing Zephyr Port and NXP FRDM-MCXN947.
 Bachelor thesis. Brno, 2025.}{Práce zkoumá podporu MicroPython na Zephyr RTOS s využitím 
@@ -1230,6 +1230,71 @@ the request. At this stage connecting to the board with serial port will reveal 
 \vlozobr{images/server_logs}{0.8}
 \endobr{HTTPS server request logs}
 
+\kapitola{Discussion}
+Work on this thesis has shown numerous opportunities for further development. This could be
+attributed to the broad scope of the thesis topic. I this section achieved results will be summarized and directions for further implementation proposed.
+
+\sekce{Improved peripheral support}
+During implementation of the thesis \textit{PWM} support was added to the MicroPython's Zephyr 
+port with community developed port extension and hardware configuration via 
+\textit{Devicetree}. Tho the \textit{PWM} support was added some other means hardware options 
+are still not properly supported or the supported parts do not use Zephyrs API for speed and
+reliability.
+
+A potential extension would be to implement \textit{I2C, I3C} support on MicroPython's Zephyr 
+port.
+
+\sekce{Improved modules compatibility}
+Although during the implementation phase of this thesis more modules were added to the 
+MicroPython's Zephyr port those lacked use of efficient Zephyr APIs.
+
+Rewrites of this modules for higher speed and better hardware integration could be a potential
+improvement. 
+
+\sekce{Integration with ports configuration}
+During implementation of this thesis significant reconfiguration was introduced but this 
+changes were not visible during the port use and knowledge about the final build and 
+configuration is available only to the developer who made the configuration changes.
+
+A module highlighting the current configuration and available modules could be implemented, 
+which would potentially ease of further development saving time on following big an numerous
+configuration files.
+
+\kapitola{Conclusion}
+The implementation phase of this thesis began with the necessary setup and configuration of
+the Zephyr development environment and its key dependencies, \textit{LinkServer} utility to
+enable firmware flashing to the FRDM-MCXN947 development board, and of a serial port utility
+to enable output observation and direct programming of the board in REPL environment.
+Correct functionality of the installed Zephyr development environment was tested by loading
+sample program and observing its correct work.
+
+Following this MicroPython implementation by NXP made specifically for FRMD-MCXN947 board was
+obtained, flashed to the board. Capabilities of the MicroPython implementation by NXP were
+tested by loading to the board and observing the behavior of a sample program.
+
+The core part of the implementation chapter focused on creation of the
+MicroPython's Zephyr port that would utilize powerful Zephyr APIs but retain ease of use of
+MicroPython. The two implementations were then compared against one another in terms of module
+support. The comparison yielded the conclusion that NXP's MicroPython implementation had a
+list of supported modules larger than MicroPython's Zephyr port, those findings were presented
+in form of a table. Then the Zephyr port was configured and some missing modules were added to
+the port thus also illustrating the port flexibility and its ability to be highly modular.
+The updated MicroPython's Zephyr port was then compared against NXP's MicroPython 
+implementation in terms of module support, the comparison showed a significant improvement for
+MicroPython's Zephyr port.
+
+The MicroPython's Zephyr port was further enhanced by introducing \textit{PWM} support made by
+efforts of the MicroPython community. Additionally, the potential for adding custom modules
+were show further highlighting ports flexibility.
+
+The practicality of the port was shown by implementing and running an HTTP server. Preceding
+to running the server the port was further configured with \textit{Kconfig} to add Zephyr's
+comprehensive network support and with \textit{Devicetree} to correctly configure \textit{PWM}
+use on the FRDM-MCXN947 board.
+
+The final state of this thesis fulfills the goals defined for it. During the development
+process additional module and hardware support was added thus expanding the MicroPython's
+Zephyr port. The thesis might also serve as a foundation for other developers and creation of further related theses.
 
 \begin{literatura}
 % ZEPHYR sources
